@@ -51,7 +51,12 @@ function RootComponent() {
             <RootProvider>
                 <SettingsDialogue />
                 <OfflineAllert />
-                <Outlet />
+                {/* Book page – full width only on mobile, narrows to a centered wiki-style column with visible side borders from sm up. Every route renders inside it, so this is the one place the reading width needs to change. The outer div is left transparent so the dark backdrop set on html/body shows through in the side gutters; only the page itself uses the theme background. */}
+                <div className="flex h-full w-full flex-col items-center">
+                    <div className="relative flex h-full w-full flex-1 flex-col bg-background px-6 text-foreground sm:max-w-3xl sm:border-x sm:border-border sm:px-10">
+                        <Outlet />
+                    </div>
+                </div>
             </RootProvider>
 
             {DevDevtools && (
