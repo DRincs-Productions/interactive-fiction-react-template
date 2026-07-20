@@ -4,9 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
-    CANVAS_UI_LAYER_NAME,
     INTERFACE_DATA_USE_QUERY_KEY,
-    overlayTextShadowClass,
+    overlayTextShadowClass
 } from "@/constants";
 import { useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
@@ -14,7 +13,7 @@ import { useQueryLastSave } from "@/lib/query/save-query";
 import { InterfaceSettings } from "@/lib/stores/interface-settings-store";
 import { cn } from "@/lib/utils";
 import { loadSave } from "@/lib/utils/save-utility";
-import { canvas, Game, ImageSprite } from "@drincs/pixi-vn";
+import { Game } from "@drincs/pixi-vn";
 import { useHotkeys } from "@tanstack/react-hotkeys";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, CirclePlay, Play, Save, Settings } from "lucide-react";
@@ -115,22 +114,12 @@ export function MainMenu() {
 
     useEffect(() => {
         InterfaceSettings.setHidden(false);
-        const bg = new ImageSprite({}, "background_main_menu");
-        bg.load();
-        const layer = canvas.getLayer(CANVAS_UI_LAYER_NAME);
-        if (layer) {
-            layer.addChild(bg);
-        }
 
         // Auto-focus the first enabled button so arrow-key navigation works immediately.
         const firstItem = menuRef.current?.querySelector<HTMLButtonElement>(
             "button[role='menuitem']:not(:disabled)",
         );
         firstItem?.focus();
-
-        return () => {
-            canvas.getLayer(CANVAS_UI_LAYER_NAME)?.removeChildren();
-        };
     }, []);
 
     return (

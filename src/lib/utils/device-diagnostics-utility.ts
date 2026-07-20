@@ -1,7 +1,6 @@
 import packageJson from "@/../package.json";
-import { canvas, PIXIVN_VERSION } from "@drincs/pixi-vn";
+import { PIXIVN_VERSION } from "@drincs/pixi-vn";
 import motionPackageJson from "motion/package.json";
-import { VERSION as PIXIJS_VERSION } from "pixi.js";
 import tonePackageJson from "tone/package.json";
 
 export interface WebglExtensionCheck {
@@ -262,20 +261,8 @@ export function getJsMemoryInfo(): JsMemoryInfo | null {
     };
 }
 
-export function getCurrentFps(): number | null {
-    try {
-        return Math.round(canvas.app.ticker.FPS);
-    } catch {
-        return null;
-    }
-}
-
 export function getGameVersion(): string {
     return packageJson.version;
-}
-
-export function getPixiJsVersion(): string {
-    return PIXIJS_VERSION;
 }
 
 export function getPixiVnVersion(): string {

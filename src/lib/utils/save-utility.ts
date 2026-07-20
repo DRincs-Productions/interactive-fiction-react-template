@@ -7,7 +7,7 @@ import {
     putRowIntoIndexDB,
 } from "@/lib/utils/db-utility";
 import type GameSaveData from "@/models/GameSaveData";
-import { canvas, Game } from "@drincs/pixi-vn";
+import { Game } from "@drincs/pixi-vn";
 
 const SAVE_FILE_EXTENSION = "json";
 const REFRESH_SAVE_LOCAL_STORAGE_KEY = "refresh_save";
@@ -46,14 +46,13 @@ export function getSaveSlotLabel(id: number, t: (key: string) => string): string
     return `${t("save_slot")} ${String(id + 1).padStart(2, "0")}`;
 }
 
-export function createGameSave(options?: { image?: string; name?: string }): GameSaveData {
-    const { image, name = "" } = options || {};
+export function createGameSave(options?: {  name?: string }): GameSaveData {
+    const {  name = "" } = options || {};
     return {
         saveData: Game.exportGameState(),
         gameVersion: __APP_VERSION__,
         date: new Date(),
         name: name,
-        image: image,
     };
 }
 
@@ -65,10 +64,9 @@ export async function saveGameToIndexDB(
     info: Partial<GameSaveData> & { id?: number } = {},
     data = createGameSave(),
 ): Promise<GameSaveData & { id: number }> {
-    const { image = await canvas.extractImage(), ...rest } = info;
+    const {  ...rest } = info;
     const item = {
         ...data,
-        image: image,
         ...rest,
     };
     if (item.id === undefined) {
