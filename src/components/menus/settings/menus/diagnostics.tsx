@@ -62,7 +62,7 @@ function CapabilityRow({
 export function DiagnosticsSettingsPage() {
     const diagnostics = useDeviceDiagnostics();
     const { t } = useTranslation(["ui"]);
-    const { webgl, capabilities, resolution, memory, fps } = diagnostics;
+    const { webgl, capabilities, resolution, memory } = diagnostics;
     const yesNo = (value: boolean | null) =>
         value === null
             ? t("diagnostics_unknown")
@@ -109,10 +109,6 @@ export function DiagnosticsSettingsPage() {
                     <DiagnosticRow
                         label={t("diagnostics_game_version")}
                         value={diagnostics.gameVersion}
-                    />
-                    <DiagnosticRow
-                        label={t("diagnostics_pixijs_version")}
-                        value={diagnostics.pixiJsVersion}
                     />
                     <DiagnosticRow
                         label={t("diagnostics_pixivn_version")}
@@ -175,10 +171,6 @@ export function DiagnosticsSettingsPage() {
                     <DiagnosticRow
                         label={t("diagnostics_device_pixel_ratio")}
                         value={resolution.devicePixelRatio}
-                    />
-                    <DiagnosticRow
-                        label={t("diagnostics_fps")}
-                        value={fps ?? t("diagnostics_unknown")}
                     />
                 </DiagnosticsSection>
 

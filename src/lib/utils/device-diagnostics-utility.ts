@@ -286,25 +286,22 @@ export interface DeviceDiagnosticsSnapshot {
     capabilities: BrowserCapabilities;
     resolution: ResolutionInfo;
     memory: JsMemoryInfo | null;
-    fps: number | null;
     userAgent: string;
     platform: string;
     browserEngine: string;
     gameVersion: string;
-    pixiJsVersion: string;
     pixiVnVersion: string;
     toneJsVersion: string;
     motionVersion: string;
 }
 
 export function buildDiagnosticsReportText(snapshot: DeviceDiagnosticsSnapshot): string {
-    const { webgl, capabilities, resolution, memory, fps } = snapshot;
+    const { webgl, capabilities, resolution, memory } = snapshot;
     const yn = (value: boolean | null) => (value === null ? "Unknown" : value ? "Yes" : "No");
 
     const lines = [
         "=== Device Diagnostics Report ===",
         `Game version: ${snapshot.gameVersion}`,
-        `PixiJS version: ${snapshot.pixiJsVersion}`,
         `Pixi'VN version: ${snapshot.pixiVnVersion}`,
         `Tone.js version: ${snapshot.toneJsVersion}`,
         `Motion version: ${snapshot.motionVersion}`,
@@ -330,7 +327,6 @@ export function buildDiagnosticsReportText(snapshot: DeviceDiagnosticsSnapshot):
         "-- Display --",
         `Resolution: ${resolution.innerWidth}x${resolution.innerHeight} (screen ${resolution.screenWidth}x${resolution.screenHeight})`,
         `Device pixel ratio: ${resolution.devicePixelRatio}`,
-        `FPS: ${fps ?? "Unknown"}`,
         "",
         "-- Memory --",
         memory

@@ -3,11 +3,9 @@ import {
     detectBrowserEngine,
     detectPlatform,
     getBrowserCapabilities,
-    getCurrentFps,
     getGameVersion,
     getJsMemoryInfo,
     getMotionVersion,
-    getPixiJsVersion,
     getPixiVnVersion,
     getResolutionInfo,
     getToneJsVersion,
@@ -27,14 +25,12 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
     const platform = useMemo(() => detectPlatform(), []);
     const browserEngine = useMemo(() => detectBrowserEngine(), []);
     const gameVersion = useMemo(() => getGameVersion(), []);
-    const pixiJsVersion = useMemo(() => getPixiJsVersion(), []);
     const pixiVnVersion = useMemo(() => getPixiVnVersion(), []);
     const toneJsVersion = useMemo(() => getToneJsVersion(), []);
     const motionVersion = useMemo(() => getMotionVersion(), []);
 
     const [resolution, setResolution] = useState(() => getResolutionInfo());
     const [memory, setMemory] = useState(() => getJsMemoryInfo());
-    const [fps, setFps] = useState<number | null>(() => getCurrentFps());
 
     useEffect(() => {
         const onResize = () => setResolution(getResolutionInfo());
@@ -44,7 +40,6 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setFps(getCurrentFps());
             setMemory(getJsMemoryInfo());
         }, LIVE_REFRESH_INTERVAL_MS);
         return () => clearInterval(interval);
@@ -55,12 +50,10 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
         capabilities,
         resolution,
         memory,
-        fps,
         userAgent: navigator.userAgent,
         platform,
         browserEngine,
         gameVersion,
-        pixiJsVersion,
         pixiVnVersion,
         toneJsVersion,
         motionVersion,
