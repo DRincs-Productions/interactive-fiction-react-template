@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { INTERFACE_DATA_USE_QUERY_KEY } from "@/constants";
+import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { useQueryLastSave } from "@/lib/query/save-query";
 import { InterfaceSettings } from "@/lib/stores/interface-settings-store";
 import { loadSave } from "@/lib/utils/save-utility";
-import { Game } from "@drincs/pixi-vn";
 import { useHotkeys } from "@tanstack/react-hotkeys";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, CirclePlay, Play, Save, Settings } from "lucide-react";
@@ -24,6 +24,7 @@ export function MainMenu() {
     const { uiTransition: t, navigate } = gameProps;
     const setSettings = useSetSearchParamState<boolean>("settings");
     const setSettingsTab = useSetSearchParamState<string>("settings_tab");
+    const { start } = useNarrationFunctions();
     const [loading, setLoading] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -165,9 +166,7 @@ export function MainMenu() {
                     onClick={async () => {
                         setLoading(true);
                         await navigate({ to: "/game/narration" });
-                        Game.start("start", gameProps)
-                            .then(() => gameProps.invalidateInterfaceData())
-                            .finally(() => setLoading(false));
+                        start().finally(() => setLoading(false));
                     }}
                     disabled={loading}
                     className={menuButtonClass}

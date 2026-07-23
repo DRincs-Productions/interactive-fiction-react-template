@@ -2,11 +2,12 @@ import { SKIP_DELAY } from "@/constants";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { AutoSettings } from "@/lib/stores/auto-settings-store";
 import { GameStatus } from "@/lib/stores/game-status-store";
+import { PendingLabelStart } from "@/lib/stores/pending-label-start-store";
 import { SearchParams } from "@/lib/stores/search-param-store";
 import { SkipSettings } from "@/lib/stores/skip-settings-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { hasScrollableParent, isScrollableElement } from "@/lib/utils/scroll-utils";
-import { narration, stepHistory, type StoredIndexedChoiceInterface } from "@drincs/pixi-vn";
+import { Game, narration, stepHistory, type StoredIndexedChoiceInterface } from "@drincs/pixi-vn";
 import { useDebouncer } from "@tanstack/react-pacer";
 import { useSelector } from "@tanstack/react-store";
 import type React from "react";
@@ -25,26 +26,32 @@ export function useNarrationFunctions() {
         TextDisplaySettings.resetForNext();
         GameStatus.setLoading(true);
         try {
-            if (!narration.canContinue) {
+            const pendingLabelStart = PendingLabelStart.consume();
+            if (!pendingLabelStart && !narration.canContinue) {
                 GameStatus.setLoading(false);
                 return;
             }
-            return narration
-                .continue(gameProps)
-                .then(() => {
-                    gameProps.invalidateInterfaceData();
-                    GameStatus.setLoading(false);
-                })
-                .catch((e) => {
-                    GameStatus.setLoading(false);
-                    console.error(e);
-                });
+            if (pendingLabelStart) {
+                await pendingLabelStart();
+            }
+            // Keep advancing within the current label - a paragraph at a time -
+            // until either the player must act (choice/input) or a new label is
+            // about to start (deferred by PendingLabelStart, resumed on the next goNext).
+            while (!PendingLabelStart.has() && narration.canContinue) {
+                await narration.continue(gameProps);
+            }
+            gameProps.invalidateInterfaceData();
+            GameStatus.setLoading(false);
         } catch (e) {
             GameStatus.setLoading(false);
             console.error(e);
-            return;
         }
     }, [gameProps, hasOpenMenu]);
+
+    const start = useCallback(async () => {
+        await Game.start("start", gameProps);
+        await goNext();
+    }, [gameProps, goNext]);
 
     const goBack = useCallback(async () => {
         if (hasOpenMenu) return;
@@ -80,6 +87,7 @@ export function useNarrationFunctions() {
     );
 
     return {
+        start,
         goNext,
         goBack,
         selectChoice,
@@ -95,7 +103,10 @@ const isDragGesture = (dx: number, dy: number) =>
 export function useNarrationPointerHandlers() {
     const { goNext } = useNarrationFunctions();
     const skipEnabled = useSelector(SkipSettings.store, (state) => state.enabled);
-    const typewriterInProgress = useSelector(TextDisplaySettings.store, (state) => state.inProgress);
+    const typewriterInProgress = useSelector(
+        TextDisplaySettings.store,
+        (state) => state.inProgress,
+    );
     const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
     const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const longPressTriggered = useRef(false);

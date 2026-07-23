@@ -5,8 +5,9 @@ import {
 } from "@/constants";
 import { ChannelSound } from "@/lib/stores/channel-sound-stores";
 import { MasterSound } from "@/lib/stores/master-sound-storage";
+import { PendingLabelStart } from "@/lib/stores/pending-label-start-store";
 import "@/styles.css";
-import { Assets, Game, sound } from "@drincs/pixi-vn";
+import { Game, narration, sound } from "@drincs/pixi-vn";
 import { createRoot } from "react-dom/client";
 
 // Canvas setup with PIXI
@@ -43,4 +44,11 @@ Game.addOnError((error, { toast, uiTransition }) => {
     console.error(`Error occurred`, error);
 });
 
-Game.onLoadingLabel((_stepId, { id }) => Assets.backgroundLoadBundle(id));
+Game.onLabelStarting((labelId, _props, options, defaultStart) => {
+    // Let the very first label of a game (no label active yet, e.g. Game.start) begin
+    // immediately; only defer label starts that happen mid-story (see PendingLabelStart).
+    if (!narration.currentLabel) {
+        return defaultStart();
+    }
+    PendingLabelStart.set(labelId, options, defaultStart);
+});
