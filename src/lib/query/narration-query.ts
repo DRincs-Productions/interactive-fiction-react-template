@@ -50,6 +50,7 @@ const NARRATION_PARAGRAPHS_USE_QUERY_KEY = "narration_paragraphs_use_query_key";
  */
 export function useQueryNarrationParagraphs() {
     const { t } = useTranslation(["narration"]);
+    const { t: tUi } = useTranslation(["ui"]);
 
     return useQuery({
         queryKey: [INTERFACE_DATA_USE_QUERY_KEY, NARRATION_PARAGRAPHS_USE_QUERY_KEY],
@@ -73,7 +74,9 @@ export function useQueryNarrationParagraphs() {
                                     (character.surname ? ` ${character.surname}` : "")
                                   : undefined;
 
-                        return characterName ? `${characterName} said: ${text}` : text;
+                        return characterName
+                            ? tUi("character_said", { character: characterName, text })
+                            : text;
                     })
                     .filter((text): text is string => text !== undefined)
                     .join(" "),
