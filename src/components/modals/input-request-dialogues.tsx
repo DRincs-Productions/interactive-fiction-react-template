@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useGameProps } from "@/lib/hooks/props-hooks";
-import { useQueryDialogue, useQueryInputValue } from "@/lib/query/narration-query";
+import { useQueryInputValue, useQueryNarrationParagraphs } from "@/lib/query/narration-query";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { narration } from "@drincs/pixi-vn";
 import { useDebouncedValue } from "@tanstack/react-pacer";
@@ -14,7 +14,8 @@ import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 
 export function InputRequestDialog() {
-    const { data: { lastText: text } = {} } = useQueryDialogue();
+    const { data: paragraphs = [] } = useQueryNarrationParagraphs();
+    const text = paragraphs.findLast((paragraph) => paragraph.length > 0);
     const {
         data: { isRequired, type, currentValue } = { currentValue: undefined, isRequired: false },
     } = useQueryInputValue<string | number>();

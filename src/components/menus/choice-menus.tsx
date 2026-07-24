@@ -19,7 +19,7 @@ export function ChoiceMenu() {
     return (
         <div
             ref={menuRef}
-            className="flex flex-col items-center justify-center gap-2 w-full h-full overflow-auto"
+            className="flex w-full shrink-0 flex-col items-center gap-2 overflow-auto max-h-[45vh] pb-2"
             role="menu"
         >
             {debouncedMenu.map((item, index) => (
