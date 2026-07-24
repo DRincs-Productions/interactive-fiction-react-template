@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useGameProps } from "@/lib/hooks/props-hooks";
+import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { useQueryInputValue } from "@/lib/query/narration-query";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { narration } from "@drincs/pixi-vn";
@@ -20,7 +20,7 @@ export function NarrationInput() {
     const isTyping = useSelector(TextDisplaySettings.store, (state) => state.inProgress);
     const [visible] = useDebouncedValue(!isTyping && isRequired, { wait: 50 });
     const [tempValue, setTempValue] = useState<string | number>();
-    const gameProps = useGameProps();
+    const { goNext } = useNarrationFunctions();
     const { t } = useTranslation(["ui"]);
 
     useEffect(() => {
@@ -35,8 +35,8 @@ export function NarrationInput() {
         }
         narration.inputValue = tempValue || currentValue;
         setTempValue(undefined);
-        gameProps.invalidateInterfaceData();
-    }, [canConfirm, currentValue, gameProps, tempValue]);
+        goNext();
+    }, [canConfirm, currentValue, goNext, tempValue]);
 
     if (!visible) {
         return null;
