@@ -1,4 +1,5 @@
 import { DelayedAnimatedDots } from "@/components/loading";
+import { ChoiceMenu } from "@/components/menus/choice-menus";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNarrationPointerHandlers } from "@/lib/hooks/narration-hooks";
 import { useQueryNarrationParagraphs } from "@/lib/query/narration-query";
@@ -48,6 +49,7 @@ export function NarrationBook() {
                         </Markdown>
                     ))}
                     <LastParagraph text={lastParagraph} containerRef={bookRef} />
+                    <ChoiceMenu />
                 </div>
             </ScrollArea>
         </div>

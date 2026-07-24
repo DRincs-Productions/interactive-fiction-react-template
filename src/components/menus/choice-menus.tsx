@@ -17,11 +17,7 @@ export function ChoiceMenu() {
     const { menuRef } = useChoiceMenuHotkeys(debouncedMenu.length);
 
     return (
-        <div
-            ref={menuRef}
-            className="flex w-full shrink-0 flex-col items-center gap-2 overflow-auto max-h-[45vh] pb-2"
-            role="menu"
-        >
+        <div ref={menuRef} className="flex w-full flex-col items-center gap-2 py-4" role="menu">
             {debouncedMenu.map((item, index) => (
                 <div
                     key={`choice-${item.choiceIndex}`}
