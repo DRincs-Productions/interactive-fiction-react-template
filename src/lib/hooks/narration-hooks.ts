@@ -72,18 +72,19 @@ export function useNarrationFunctions() {
         async (item: StoredIndexedChoiceInterface) => {
             if (hasOpenMenu) return;
             GameStatus.setLoading(true);
-            return narration
-                .selectChoice(item, gameProps)
-                .then(() => {
-                    gameProps.invalidateInterfaceData();
-                    GameStatus.setLoading(false);
-                })
-                .catch((e) => {
-                    GameStatus.setLoading(false);
-                    console.error(e);
-                });
+            try {
+                await narration.selectChoice(item, gameProps);
+            } catch (e) {
+                GameStatus.setLoading(false);
+                console.error(e);
+                return;
+            }
+            // Selecting a choice that jumps/calls into a new label only defers the label
+            // start (see PendingLabelAction) - goNext is what actually consumes it and
+            // advances the narration to the next paragraph.
+            await goNext();
         },
-        [gameProps, hasOpenMenu],
+        [gameProps, goNext, hasOpenMenu],
     );
 
     return {
