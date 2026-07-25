@@ -79,7 +79,11 @@ export function useQueryNarrationParagraphs() {
                             : text;
                     })
                     .filter((text): text is string => text !== undefined)
-                    .join(" "),
+                    // A plain " " here sits right on the boundary the typewriter's
+                    // static/animated text split re-parses as markdown; CommonMark trims
+                    // leading whitespace from that fragment, silently eating the space.
+                    // "&nbsp;" is decoded to a space only after that trimming step, so it survives.
+                    .join("&nbsp;"),
             ),
         placeholderData: keepPreviousData,
     });
