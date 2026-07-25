@@ -5,7 +5,7 @@ import {
 } from "@/constants";
 import { ChannelSound } from "@/lib/stores/channel-sound-stores";
 import { MasterSound } from "@/lib/stores/master-sound-storage";
-import { PendingLabelStart } from "@/lib/stores/pending-label-start-store";
+import { PendingLabelAction } from "@/lib/stores/pending-label-action-store";
 import "@/styles.css";
 import { Game, narration, sound } from "@drincs/pixi-vn";
 import { createRoot } from "react-dom/client";
@@ -46,9 +46,16 @@ Game.addOnError((error, { toast, uiTransition }) => {
 
 Game.onLabelStarting((labelId, _props, options, defaultStart) => {
     // Let the very first label of a game (no label active yet, e.g. Game.start) begin
-    // immediately; only defer label starts that happen mid-story (see PendingLabelStart).
+    // immediately; only defer label starts that happen mid-story (see PendingLabelAction).
     if (!narration.currentLabel) {
         return defaultStart();
     }
-    PendingLabelStart.set(labelId, options, defaultStart);
+    PendingLabelAction.setStart(labelId, options, defaultStart);
+});
+
+Game.onLabelClosing((labelId, _props, defaultClose) => {
+    // A called label always closes back into a parent (see NarrationManager.closeLabel),
+    // so defer every close - the goNext loop resumes it on the player's next action
+    // (see PendingLabelAction).
+    PendingLabelAction.setClose(labelId, defaultClose);
 });

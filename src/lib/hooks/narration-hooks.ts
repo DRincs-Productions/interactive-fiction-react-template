@@ -2,7 +2,7 @@ import { SKIP_DELAY } from "@/constants";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { AutoSettings } from "@/lib/stores/auto-settings-store";
 import { GameStatus } from "@/lib/stores/game-status-store";
-import { PendingLabelStart } from "@/lib/stores/pending-label-start-store";
+import { PendingLabelAction } from "@/lib/stores/pending-label-action-store";
 import { SearchParams } from "@/lib/stores/search-param-store";
 import { SkipSettings } from "@/lib/stores/skip-settings-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
@@ -26,18 +26,18 @@ export function useNarrationFunctions() {
         TextDisplaySettings.resetForNext();
         GameStatus.setLoading(true);
         try {
-            const pendingLabelStart = PendingLabelStart.consume();
-            if (!pendingLabelStart && !narration.canContinue) {
+            const pendingLabelAction = PendingLabelAction.consume();
+            if (!pendingLabelAction && !narration.canContinue) {
                 GameStatus.setLoading(false);
                 return;
             }
-            if (pendingLabelStart) {
-                await pendingLabelStart();
+            if (pendingLabelAction) {
+                await pendingLabelAction();
             }
             // Keep advancing within the current label - a paragraph at a time -
-            // until either the player must act (choice/input) or a new label is
-            // about to start (deferred by PendingLabelStart, resumed on the next goNext).
-            while (!PendingLabelStart.has() && narration.canContinue) {
+            // until either the player must act (choice/input) or a new label is about to
+            // start/close (deferred by PendingLabelAction, resumed on the next goNext).
+            while (!PendingLabelAction.has() && narration.canContinue) {
                 await narration.continue(gameProps);
             }
             gameProps.invalidateInterfaceData();
