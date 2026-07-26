@@ -2,13 +2,12 @@ import packageJson from "@/../package.json";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { INTERFACE_DATA_USE_QUERY_KEY } from "@/constants";
 import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { useQueryLastSave } from "@/lib/query/save-query";
 import { InterfaceSettings } from "@/lib/stores/interface-settings-store";
-import { loadSave } from "@/lib/utils/save-utility";
+import { loadRefreshSave, loadSave } from "@/lib/utils/save-utility";
 import { useHotkeys } from "@tanstack/react-hotkeys";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, CirclePlay, Play, Save, Settings } from "lucide-react";
@@ -230,12 +229,8 @@ export function ContinueMenuButton({
         if (!lastSave) return;
         setLoading(true);
         onLoadingChange?.(true);
-        loadSave(lastSave)
-            .then(() =>
-                queryClient.invalidateQueries({
-                    queryKey: [INTERFACE_DATA_USE_QUERY_KEY],
-                }),
-            )
+        (hasRefreshSave ? loadRefreshSave() : loadSave(lastSave))
+            .then(() => queryClient.invalidateQueries())
             .catch((e) => {
                 toast.error(t("fail_load"));
                 console.error(e);
@@ -244,7 +239,7 @@ export function ContinueMenuButton({
                 setLoading(false);
                 onLoadingChange?.(false);
             });
-    }, [lastSave, queryClient, t, onLoadingChange]);
+    }, [lastSave, hasRefreshSave, queryClient, t, onLoadingChange]);
 
     const isDisabled = (!isLoading && !lastSave) || loading || disabled;
 
