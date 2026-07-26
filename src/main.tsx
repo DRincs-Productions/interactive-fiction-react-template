@@ -1,13 +1,10 @@
 import App from "@/App";
-import {
-    BGM_CHANNEL_NAME,
-    SFX_CHANNEL_NAME
-} from "@/constants";
+import { BGM_CHANNEL_NAME, SFX_CHANNEL_NAME } from "@/constants";
 import { ChannelSound } from "@/lib/stores/channel-sound-stores";
 import { MasterSound } from "@/lib/stores/master-sound-storage";
 import { PendingLabelAction } from "@/lib/stores/pending-label-action-store";
 import "@/styles.css";
-import { Game, narration, sound } from "@drincs/pixi-vn";
+import { Game, narration, sound, stepHistory } from "@drincs/pixi-vn";
 import { createRoot } from "react-dom/client";
 
 // Canvas setup with PIXI
@@ -15,6 +12,8 @@ const body = document.body;
 if (!body) {
     throw new Error("body element not found");
 }
+
+stepHistory.goBackMode = "paragraph";
 
 Game.init().then(() => {
     // Sound setup
