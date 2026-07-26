@@ -17,7 +17,10 @@ import remarkGfm from "remark-gfm";
  */
 export function NarrationBook() {
     const { data: paragraphs = [] } = useQueryNarrationParagraphs();
-    const nonEmptyParagraphs = useMemo(() => paragraphs.filter(Boolean), [paragraphs]);
+    const nonEmptyParagraphs = useMemo(
+        () => paragraphs.filter((paragraph) => paragraph.text),
+        [paragraphs],
+    );
     const bookRef = useRef<HTMLDivElement>(null);
     const { handlePointerDown, handlePointerCancel, handlePointerUp } =
         useNarrationPointerHandlers();
@@ -39,22 +42,30 @@ export function NarrationBook() {
                 onPointerUp={handlePointerUp}
             >
                 <div className="prose dark:prose-invert max-w-full space-y-4 px-1.5 py-4 sm:px-3">
-                    {pastParagraphs.map((text, index) => (
-                        <Markdown
-                            key={index}
-                            remarkPlugins={[remarkGfm]}
-                            rehypePlugins={[rehypeRaw]}
-                        >
-                            {text}
-                        </Markdown>
+                    {pastParagraphs.map((paragraph) => (
+                        <PastParagraph key={paragraph.key} text={paragraph.text} />
                     ))}
-                    <LastParagraph text={lastParagraph} containerRef={bookRef} />
+                    <LastParagraph text={lastParagraph.text} containerRef={bookRef} />
                     <ChoiceMenu />
                 </div>
             </ScrollArea>
         </div>
     );
 }
+
+/**
+ * Every already-read paragraph is rendered once and never changes again, but without this
+ * memo react-markdown rebuilds its whole unified() pipeline and re-parses every one of them
+ * from scratch on every NarrationBook re-render (i.e. on every subsequent step) - O(n) work
+ * per step that keeps growing the longer a page/scene runs.
+ */
+const PastParagraph = memo(function PastParagraph({ text }: { text: string }) {
+    return (
+        <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+            {text}
+        </Markdown>
+    );
+});
 
 /**
  * Tracks how much of `text` has already been fully typed out, so that only the

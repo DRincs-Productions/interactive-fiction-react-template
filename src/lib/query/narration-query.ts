@@ -55,8 +55,12 @@ export function useQueryNarrationParagraphs() {
     return useQuery({
         queryKey: [INTERFACE_DATA_USE_QUERY_KEY, NARRATION_PARAGRAPHS_USE_QUERY_KEY],
         queryFn: async () =>
-            stepHistory.currentPageParagraphs.map((paragraph) =>
-                paragraph
+            stepHistory.currentPageParagraphs.map((paragraph) => ({
+                // A paragraph's step indexes never change once written, so the first step's
+                // index is a stable React key across re-renders - unlike the array position,
+                // it doesn't shift when going back/forward reshapes the accumulated list.
+                key: paragraph[0]?.stepIndex ?? 0,
+                text: paragraph
                     .map((step) => {
                         const dialogue = step.dialogue;
                         if (!dialogue) return undefined;
@@ -84,7 +88,7 @@ export function useQueryNarrationParagraphs() {
                     // leading whitespace from that fragment, silently eating the space.
                     // "&nbsp;" is decoded to a space only after that trimming step, so it survives.
                     .join("&nbsp;"),
-            ),
+            })),
         placeholderData: keepPreviousData,
     });
 }
