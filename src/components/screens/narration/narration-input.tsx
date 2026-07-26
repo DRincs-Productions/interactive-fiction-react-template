@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CHOICE_INPUT_REVEAL_DELAY_MS } from "@/constants";
 import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
-import { useQueryInputValue } from "@/lib/query/narration-query";
+import { useQueryInputValue, useQueryNarrationParagraphs } from "@/lib/query/narration-query";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { narration } from "@drincs/pixi-vn";
 import { useDebouncedValue } from "@tanstack/react-pacer";
@@ -17,8 +18,13 @@ export function NarrationInput() {
     const {
         data: { isRequired, type, currentValue } = { currentValue: undefined, isRequired: false },
     } = useQueryInputValue<string | number>();
+    const { isLoading: paragraphsLoading } = useQueryNarrationParagraphs();
     const isTyping = useSelector(TextDisplaySettings.store, (state) => state.inProgress);
-    const [visible] = useDebouncedValue(!isTyping && isRequired, { wait: 50 });
+    const readyToShow = !isTyping && isRequired && !paragraphsLoading;
+    const [sustainedReady] = useDebouncedValue(readyToShow, {
+        wait: CHOICE_INPUT_REVEAL_DELAY_MS,
+    });
+    const visible = readyToShow && sustainedReady;
     const [tempValue, setTempValue] = useState<string | number>();
     const { goNext } = useNarrationFunctions();
     const { t } = useTranslation(["ui"]);
