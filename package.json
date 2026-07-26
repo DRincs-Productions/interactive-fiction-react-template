@@ -27,6 +27,7 @@
     "@tanstack/react-query": "latest",
     "@tanstack/react-router": "latest",
     "@tanstack/react-store": "latest",
+    "@tanstack/react-virtual": "^3.14.8",
     "@tanstack/store": "latest",
     "@unpic/react": "^1.0.2",
     "class-variance-authority": "^0.7.1",

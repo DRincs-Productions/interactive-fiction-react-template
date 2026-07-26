@@ -4,16 +4,32 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNarrationPointerHandlers } from "@/lib/hooks/narration-hooks";
 import { useQueryNarrationParagraphs } from "@/lib/query/narration-query";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { useSelector } from "@tanstack/react-store";
-import { type RefObject, memo, useCallback, useEffect, useMemo, useRef } from "react";
+import {
+    type RefObject,
+    memo,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import Markdown from "react-markdown";
 import { MarkdownTypewriterHooks } from "react-markdown-typewriter";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 
+/** Rough initial guess for an unmeasured paragraph's height; the virtualizer corrects
+ * this against the real rendered height as soon as each item mounts. */
+const ESTIMATED_PARAGRAPH_HEIGHT_PX = 88;
+
 /**
  * The narration is read like a book: every paragraph already read sits statically
- * on the page, only the newest one is typed out.
+ * on the page, only the newest one is typed out. Past paragraphs are virtualized - for
+ * a long scene, mounting hundreds of them as real DOM nodes forever would keep growing
+ * both render and layout cost even with PastParagraph memoized.
  */
 export function NarrationBook() {
     const { data: paragraphs = [] } = useQueryNarrationParagraphs();
@@ -22,15 +38,31 @@ export function NarrationBook() {
         [paragraphs],
     );
     const bookRef = useRef<HTMLDivElement>(null);
+    const [viewportEl, setViewportEl] = useState<HTMLElement | null>(null);
     const { handlePointerDown, handlePointerCancel, handlePointerUp } =
         useNarrationPointerHandlers();
+
+    useLayoutEffect(() => {
+        setViewportEl(
+            bookRef.current?.querySelector<HTMLElement>('[data-slot="scroll-area-viewport"]') ??
+                null,
+        );
+    }, []);
+
+    const pastParagraphs = nonEmptyParagraphs.slice(0, -1);
+    const lastParagraph = nonEmptyParagraphs[nonEmptyParagraphs.length - 1];
+
+    const virtualizer = useVirtualizer({
+        count: pastParagraphs.length,
+        getScrollElement: () => viewportEl,
+        estimateSize: () => ESTIMATED_PARAGRAPH_HEIGHT_PX,
+        overscan: 6,
+        getItemKey: (index) => pastParagraphs[index]?.key ?? index,
+    });
 
     if (nonEmptyParagraphs.length === 0) {
         return null;
     }
-
-    const pastParagraphs = nonEmptyParagraphs.slice(0, -1);
-    const lastParagraph = nonEmptyParagraphs[nonEmptyParagraphs.length - 1];
 
     return (
         <div className="flex min-h-0 flex-1 flex-col">
@@ -41,11 +73,31 @@ export function NarrationBook() {
                 onPointerCancel={handlePointerCancel}
                 onPointerUp={handlePointerUp}
             >
-                <div className="prose dark:prose-invert max-w-full space-y-4 px-1.5 py-4 sm:px-3">
-                    {pastParagraphs.map((paragraph) => (
-                        <PastParagraph key={paragraph.key} text={paragraph.text} />
-                    ))}
-                    <LastParagraph text={lastParagraph.text} containerRef={bookRef} />
+                <div className="prose dark:prose-invert max-w-full px-1.5 py-4 sm:px-3">
+                    {viewportEl && pastParagraphs.length > 0 && (
+                        <div
+                            style={{
+                                position: "relative",
+                                width: "100%",
+                                height: virtualizer.getTotalSize(),
+                            }}
+                        >
+                            {virtualizer.getVirtualItems().map((virtualItem) => (
+                                <div
+                                    key={virtualItem.key}
+                                    data-index={virtualItem.index}
+                                    ref={virtualizer.measureElement}
+                                    className="absolute top-0 left-0 w-full pb-4"
+                                    style={{ transform: `translateY(${virtualItem.start}px)` }}
+                                >
+                                    <PastParagraph text={pastParagraphs[virtualItem.index].text} />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    <div className="pb-4">
+                        <LastParagraph text={lastParagraph.text} containerRef={bookRef} />
+                    </div>
                     <ChoiceMenu />
                 </div>
             </ScrollArea>
