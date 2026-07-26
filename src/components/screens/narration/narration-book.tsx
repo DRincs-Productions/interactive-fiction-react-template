@@ -3,7 +3,6 @@ import { ChoiceMenu } from "@/components/menus/choice-menus";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNarrationPointerHandlers } from "@/lib/hooks/narration-hooks";
 import { useQueryNarrationParagraphs } from "@/lib/query/narration-query";
-import { GameStatus } from "@/lib/stores/game-status-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useSelector } from "@tanstack/react-store";
@@ -42,8 +41,6 @@ export function NarrationBook() {
     const [viewportEl, setViewportEl] = useState<HTMLElement | null>(null);
     const { handlePointerDown, handlePointerCancel, handlePointerUp } =
         useNarrationPointerHandlers();
-    const loading = useSelector(GameStatus.store, (state) => state.loading);
-    const isTyping = useSelector(TextDisplaySettings.store, (state) => state.inProgress);
 
     useLayoutEffect(() => {
         setViewportEl(
@@ -101,11 +98,6 @@ export function NarrationBook() {
                     <div className="pb-4">
                         <LastParagraph text={lastParagraph.text} containerRef={bookRef} />
                     </div>
-                    {/* The typewriter's own fallback covers the gap once new text has
-                    arrived; this covers the earlier gap where a step is still executing
-                    (e.g. an async step function) and nothing has appeared yet. isTyping
-                    excludes it from ever overlapping with that other fallback. */}
-                    {loading && !isTyping && <DelayedAnimatedDots />}
                     <ChoiceMenu />
                 </div>
             </ScrollArea>
