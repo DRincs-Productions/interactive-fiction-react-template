@@ -22,7 +22,7 @@ export function MainMenu() {
     const gameProps = useGameProps();
     const { uiTransition: t, navigate } = gameProps;
     const setSettings = useSetSearchParamState<boolean>("settings");
-    const setSettingsTab = useSetSearchParamState<string>("settings_tab");
+    const setSaves = useSetSearchParamState<boolean>("saves");
     const { start } = useNarrationFunctions();
     const [loading, setLoading] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -177,10 +177,7 @@ export function MainMenu() {
                 <Button
                     role="menuitem"
                     size="lg"
-                    onClick={() => {
-                        setSettings(true);
-                        setSettingsTab("menus/save-load");
-                    }}
+                    onClick={() => setSaves(true)}
                     disabled={loading}
                     variant="outline"
                     className={menuButtonClass}

@@ -1,206 +1,77 @@
-import { About } from "@/components/menus/settings/about";
+import { AboutButton } from "@/components/menus/settings/about";
 import { DialoguesControls } from "@/components/menus/settings/dialogues-controls";
-import { ControlsListSettingsPage } from "@/components/menus/settings/menus/controls";
-import { DiagnosticsSettingsPage } from "@/components/menus/settings/menus/diagnostics";
-import { HistoryListSettingsPage } from "@/components/menus/settings/menus/history";
-import { SaveLoadSettingsPage } from "@/components/menus/settings/menus/save-load";
-import { QuickMenus } from "@/components/menus/settings/quick-menus";
 import { SoundControls } from "@/components/menus/settings/sound-controls";
 import { SystemControls } from "@/components/menus/settings/system-controls";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { useAlertDialog } from "@/components/providers/alert-dialog-provider";
 import { Button } from "@/components/ui/button";
 import { Dialog, FullscreenDialogContent } from "@/components/ui/fullscreen-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { useSearchParamState, useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
-import { ArrowLeftIcon } from "lucide-react";
-import { Fragment } from "react";
+import { Game } from "@drincs/pixi-vn";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { LogOutIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-type SettingsTabPath = "menus/controls" | "menus/history" | "menus/save-load" | "menus/diagnostics";
+function ReturnMainMenuButton() {
+    const navigate = useNavigate();
+    const { t } = useTranslation(["ui"]);
+    const setOpenSettings = useSetSearchParamState<boolean>("settings");
+    const { openAlertDialog } = useAlertDialog();
 
-type BreadcrumbEntry = {
-    id: string;
-    label: string;
-};
+    return (
+        <Button
+            variant="destructive"
+            onClick={() => {
+                openAlertDialog({
+                    head: t("attention"),
+                    content: t("you_sure_to_return_main_menu"),
+                    onConfirm: () => {
+                        Game.clear();
+                        navigate({ to: "/" });
+                        setOpenSettings(false);
+                        return true;
+                    },
+                });
+            }}
+        >
+            <LogOutIcon />
+            {t("return_main_menu")}
+        </Button>
+    );
+}
 
 export function Settings() {
     const { t } = useTranslation(["ui"]);
-    const currentTab = useSearchParamState<string>("settings_tab");
-    const setSettingsTab = useSetSearchParamState<string>("settings_tab");
-
-    const normalizedTab: SettingsTabPath | undefined =
-        currentTab === "menus/controls" ||
-        currentTab === "menus/history" ||
-        currentTab === "menus/save-load" ||
-        currentTab === "menus/diagnostics"
-            ? (currentTab as SettingsTabPath)
-            : undefined;
-
-    const goBack = () => {
-        setSettingsTab(undefined);
-    };
-
-    const breadcrumbs: BreadcrumbEntry[] = (() => {
-        if (!normalizedTab) {
-            return [{ id: "home", label: t("home") }];
-        }
-
-        const trail: BreadcrumbEntry[] = [{ id: "home", label: t("home") }];
-        if (
-            normalizedTab === "menus/controls" ||
-            normalizedTab === "menus/history" ||
-            normalizedTab === "menus/save-load" ||
-            normalizedTab === "menus/diagnostics"
-        ) {
-            trail.push({ id: "menus", label: t("menus") });
-            trail.push({
-                id:
-                    normalizedTab === "menus/controls"
-                        ? "menus-controls"
-                        : normalizedTab === "menus/history"
-                          ? "menus-history"
-                          : normalizedTab === "menus/save-load"
-                            ? "menus-save-load"
-                            : "menus-diagnostics",
-                label:
-                    normalizedTab === "menus/controls"
-                        ? t("hotkeys_menu")
-                        : normalizedTab === "menus/history"
-                          ? t("history")
-                          : normalizedTab === "menus/save-load"
-                            ? `${t("save")}/${t("load")}`
-                            : t("diagnostics"),
-            });
-        }
-        return trail;
-    })();
-
-    const renderBreadcrumb = () => (
-        <Breadcrumb>
-            <BreadcrumbList>
-                {breadcrumbs.map((crumb, index) => {
-                    const isLast = index === breadcrumbs.length - 1;
-                    const isHomeRootLink = crumb.id === "home" && normalizedTab;
-
-                    return (
-                        <Fragment key={crumb.id}>
-                            <BreadcrumbItem>
-                                {isHomeRootLink ? (
-                                    <BreadcrumbLink
-                                        render={
-                                            <button
-                                                type="button"
-                                                onClick={() => setSettingsTab(undefined)}
-                                            />
-                                        }
-                                    >
-                                        {crumb.label}
-                                    </BreadcrumbLink>
-                                ) : (
-                                    <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
-                                )}
-                            </BreadcrumbItem>
-                            {!isLast && <BreadcrumbSeparator />}
-                        </Fragment>
-                    );
-                })}
-            </BreadcrumbList>
-        </Breadcrumb>
-    );
-
-    if (
-        normalizedTab === "menus/controls" ||
-        normalizedTab === "menus/history" ||
-        normalizedTab === "menus/save-load" ||
-        normalizedTab === "menus/diagnostics"
-    ) {
-        return (
-            <>
-                <div className="border-b px-4 py-3">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        {renderBreadcrumb()}
-                        <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" onClick={goBack}>
-                                <ArrowLeftIcon />
-                                {t("back")}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-                {normalizedTab === "menus/controls" ? <ControlsListSettingsPage /> : null}
-                {normalizedTab === "menus/history" ? <HistoryListSettingsPage /> : null}
-                {normalizedTab === "menus/save-load" ? <SaveLoadSettingsPage /> : null}
-                {normalizedTab === "menus/diagnostics" ? <DiagnosticsSettingsPage /> : null}
-            </>
-        );
-    }
+    const location = useLocation();
+    const isInGame = location.pathname.startsWith("/game");
 
     return (
-        <div className="flex h-full flex-col">
-            <div className="border-b px-4 py-3">{renderBreadcrumb()}</div>
+        <div className="relative flex min-h-0 flex-1 flex-col">
             <ScrollArea className="flex-1 min-h-0">
-                {/* Two-column grid on md+, single column list below md */}
-                <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x px-2 sm:px-12 md:px-14 lg:px-22 xl:px-28">
-                    {/* Left column: quick actions */}
-                    <div className="border-b p-4 md:border-b-0">
-                        <div className="grid gap-4">
-                            <div>
-                                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                                    {t("system")}
-                                </h3>
-                                <SystemControls />
-                            </div>
-
-                            <Separator />
-
-                            <div>
-                                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                                    {t("sound")}
-                                </h3>
-                                <SoundControls />
-                            </div>
-                        </div>
+                {/* pb-10 keeps the last row clear of the floating About button bottom-right */}
+                <div className="flex flex-col gap-3 p-4 pb-10">
+                    <div>
+                        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                            {t("system")}
+                        </h3>
+                        <SystemControls />
                     </div>
 
-                    {/* Right column: settings sections */}
-                    <div className="border-b p-4 md:border-b-0">
-                        <div className="grid gap-4">
-                            <div>
-                                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                                    {t("dialogues")}
-                                </h3>
-                                <DialoguesControls />
-                            </div>
-
-                            <Separator />
-
-                            <div>
-                                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                                    {t("menus")}
-                                </h3>
-                                <QuickMenus />
-                            </div>
-
-                            <Separator />
-
-                            <div>
-                                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                                    {t("about")}
-                                </h3>
-                                <About />
-                            </div>
-                        </div>
+                    <div>
+                        <SoundControls />
                     </div>
+
+                    <div>
+                        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                            {t("dialogues")}
+                        </h3>
+                        <DialoguesControls />
+                    </div>
+
+                    {isInGame && <ReturnMainMenuButton />}
                 </div>
             </ScrollArea>
+            <AboutButton />
         </div>
     );
 }
@@ -208,22 +79,16 @@ export function Settings() {
 export function SettingsDialogue() {
     const open = useSearchParamState<boolean>("settings");
     const setOpen = useSetSearchParamState<boolean>("settings");
-    const setSettingsTab = useSetSearchParamState<string>("settings_tab");
     const { t } = useTranslation(["ui"]);
 
     return (
-        <Dialog
-            open={open ?? false}
-            onOpenChange={(isOpen) => {
-                setOpen(isOpen || undefined);
-                if (!isOpen) {
-                    // Delay clearing the tab until after the 100ms close animation
-                    // to avoid briefly flashing the main settings view during close.
-                    setTimeout(() => setSettingsTab(undefined), 150);
-                }
-            }}
-        >
-            <FullscreenDialogContent title={t("settings")}>
+        <Dialog open={open ?? false} onOpenChange={(isOpen) => setOpen(isOpen || undefined)}>
+            <FullscreenDialogContent
+                title={t("settings")}
+                centered
+                centeredFrom="sm"
+                className="sm:max-w-2xl"
+            >
                 <Settings />
             </FullscreenDialogContent>
         </Dialog>
