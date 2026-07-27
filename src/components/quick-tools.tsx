@@ -43,7 +43,6 @@ export function QuickTools() {
     const setHistory = useSetSearchParamState<boolean>("history");
     const setSaves = useSetSearchParamState<boolean>("saves");
     const setSettings = useSetSearchParamState<boolean>("settings");
-    const setSettingsTab = useSetSearchParamState<string>("settings_tab");
 
     return (
         <div className={cn("flex flex-wrap items-center justify-end gap-0.5 sm:gap-1")}>
@@ -70,11 +69,7 @@ export function QuickTools() {
                 variant="ghost"
                 size="xs"
                 className="h-5 px-1 text-[10px] sm:h-6 sm:px-2 sm:text-xs"
-                onClick={() => {
-                    setHistory(undefined);
-                    setSettings(true);
-                    setSettingsTab("menus/history");
-                }}
+                onClick={() => setHistory(true)}
             >
                 {t("history")}
             </Button>
@@ -99,11 +94,7 @@ export function QuickTools() {
                 variant="ghost"
                 size="xs"
                 className="h-5 px-1 text-[10px] sm:h-6 sm:px-2 sm:text-xs"
-                onClick={() => {
-                    setSaves(undefined);
-                    setSettings(true);
-                    setSettingsTab("menus/save-load");
-                }}
+                onClick={() => setSaves(true)}
             >
                 {t(`${t("save")}/${t("load")}`)}
             </Button>

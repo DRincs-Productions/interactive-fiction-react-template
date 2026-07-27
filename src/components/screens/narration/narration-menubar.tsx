@@ -25,7 +25,6 @@ export function NarrationMenubar() {
     const setHistory = useSetSearchParamState<boolean>("history");
     const setSaves = useSetSearchParamState<boolean>("saves");
     const setSettings = useSetSearchParamState<boolean>("settings");
-    const setSettingsTab = useSetSearchParamState<string>("settings_tab");
 
     return (
         <div className="mx-0 pt-2 sm:mx-10 sm:pt-3 md:mx-20 lg:mx-20">
@@ -36,23 +35,9 @@ export function NarrationMenubar() {
                         <MenubarItem disabled={!canGoBack || loading} onClick={() => goBack()}>
                             {t("back")}
                         </MenubarItem>
-                        <MenubarItem
-                            onClick={() => {
-                                setHistory(undefined);
-                                setSettings(true);
-                                setSettingsTab("menus/history");
-                            }}
-                        >
-                            {t("history")}
-                        </MenubarItem>
+                        <MenubarItem onClick={() => setHistory(true)}>{t("history")}</MenubarItem>
                         <MenubarSeparator />
-                        <MenubarItem
-                            onClick={() => {
-                                setSaves(undefined);
-                                setSettings(true);
-                                setSettingsTab("menus/save-load");
-                            }}
-                        >
+                        <MenubarItem onClick={() => setSaves(true)}>
                             {t("save")}/{t("load")}
                         </MenubarItem>
                         <MenubarItem onClick={() => setSettings(true)}>{t("settings")}</MenubarItem>

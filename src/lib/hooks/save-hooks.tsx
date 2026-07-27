@@ -19,8 +19,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export function useSaveActions() {
-    const setSettingsOpen = useSetSearchParamState<boolean>("settings");
-    const setSettingsTab = useSetSearchParamState<string>("settings_tab");
+    const setSaves = useSetSearchParamState<boolean>("saves");
     const { t } = useTranslation(["ui"]);
     const gameProps = useGameProps();
     const queryClient = useQueryClient();
@@ -39,8 +38,7 @@ export function useSaveActions() {
                         .then(() => {
                             gameProps.invalidateInterfaceData();
                             toast.success(t("success_load"));
-                            setSettingsTab(undefined);
-                            setSettingsOpen(undefined);
+                            setSaves(undefined);
                             return true;
                         })
                         .catch((e) => {
@@ -50,7 +48,7 @@ export function useSaveActions() {
                         }),
             });
         },
-        [openAlertDialog, t, gameProps, setSettingsOpen, setSettingsTab],
+        [openAlertDialog, t, gameProps, setSaves],
     );
 
     const handleDelete = useCallback(
