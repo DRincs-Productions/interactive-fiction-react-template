@@ -48,7 +48,14 @@ export function AboutButton() {
             variant="ghost"
             size="icon-sm"
             aria-label={t("about")}
-            onClick={() => openAlertDialog({ head: t("about"), content: <About /> })}
+            onClick={() =>
+                openAlertDialog({
+                    head: t("about"),
+                    content: <About />,
+                    hideCancel: true,
+                    confirmLabel: t("close"),
+                })
+            }
         >
             <InfoIcon />
         </Button>

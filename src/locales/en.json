@@ -9,6 +9,7 @@
     "back": "Back",
     "cancel": "Cancel",
     "character_said": "{{character}} said: {{text}}",
+    "close": "Close",
     "confirm": "Confirm",
     "continue": "Continue",
     "continue_refresh_save_tooltip": "Last time you exited without saving. You can continue from where you left off.",
