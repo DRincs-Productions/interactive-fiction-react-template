@@ -1,5 +1,9 @@
 import { PendingComponent } from "@/components/loading";
 import { SettingsDialogue } from "@/components/menus/settings";
+import { ControlsDialog } from "@/components/menus/settings/menus/controls";
+import { DiagnosticsDialog } from "@/components/menus/settings/menus/diagnostics";
+import { HistoryDialog } from "@/components/menus/settings/menus/history";
+import { SaveLoadDialog } from "@/components/menus/settings/menus/save-load";
 import { OfflineAllert } from "@/components/modals/error-allerts";
 import { RootProvider } from "@/components/providers/root-provider";
 import { useConfirmBackNavigation } from "@/lib/hooks/navigation-hooks";
@@ -47,6 +51,10 @@ function RootComponent() {
         <>
             <RootProvider>
                 <SettingsDialogue />
+                <ControlsDialog />
+                <DiagnosticsDialog />
+                <HistoryDialog />
+                <SaveLoadDialog />
                 <OfflineAllert />
                 {/* Book page – full width only on mobile, narrows to a centered wiki-style column with visible side borders from sm up. Every route renders inside it, so this is the one place the reading width needs to change. The outer div is left transparent so the dark backdrop set on html/body shows through in the side gutters; only the page itself uses the theme background. */}
                 <div className="flex h-full w-full flex-col items-center">
