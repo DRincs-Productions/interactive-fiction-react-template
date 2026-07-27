@@ -1,8 +1,7 @@
 import packageJson from "@/../package.json";
+import { useAlertDialog } from "@/components/providers/alert-dialog-provider";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InfoIcon } from "lucide-react";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function About() {
@@ -37,32 +36,21 @@ export function About() {
 }
 
 /**
- * Small corner button that opens the About info in its own dialog, instead of
+ * Header toolbar button that opens the About info in an alert dialog, instead of
  * taking up a whole section of the main settings screen.
  */
 export function AboutButton() {
-    const [open, setOpen] = useState(false);
     const { t } = useTranslation(["ui"]);
+    const { openAlertDialog } = useAlertDialog();
 
     return (
-        <>
-            <Button
-                variant="ghost"
-                size="icon-sm"
-                className="absolute right-3 bottom-3"
-                aria-label={t("about")}
-                onClick={() => setOpen(true)}
-            >
-                <InfoIcon />
-            </Button>
-            <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>{t("about")}</DialogTitle>
-                    </DialogHeader>
-                    <About />
-                </DialogContent>
-            </Dialog>
-        </>
+        <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t("about")}
+            onClick={() => openAlertDialog({ head: t("about"), content: <About /> })}
+        >
+            <InfoIcon />
+        </Button>
     );
 }

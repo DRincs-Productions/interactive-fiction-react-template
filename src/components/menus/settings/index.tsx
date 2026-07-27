@@ -46,10 +46,9 @@ export function Settings() {
     const isInGame = location.pathname.startsWith("/game");
 
     return (
-        <div className="relative flex min-h-0 flex-1 flex-col">
+        <div className="flex min-h-0 flex-1 flex-col">
             <ScrollArea className="flex-1 min-h-0">
-                {/* pb-10 keeps the last row clear of the floating About button bottom-right */}
-                <div className="flex flex-col gap-3 p-4 pb-10">
+                <div className="flex flex-col gap-3 p-4">
                     <div>
                         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                             {t("system")}
@@ -71,7 +70,6 @@ export function Settings() {
                     {isInGame && <ReturnMainMenuButton />}
                 </div>
             </ScrollArea>
-            <AboutButton />
         </div>
     );
 }
@@ -85,6 +83,7 @@ export function SettingsDialogue() {
         <Dialog open={open ?? false} onOpenChange={(isOpen) => setOpen(isOpen || undefined)}>
             <FullscreenDialogContent
                 title={t("settings")}
+                toolbar={<AboutButton />}
                 centered
                 centeredFrom="sm"
                 className="sm:max-w-2xl"
