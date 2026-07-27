@@ -1,8 +1,6 @@
-import { Kbd } from "@/components/ui/kbd";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { AutoSettings } from "@/lib/stores/auto-settings-store";
-import { SkipSettings } from "@/lib/stores/skip-settings-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { useSelector } from "@tanstack/react-store";
 import { useTranslation } from "react-i18next";
@@ -16,9 +14,6 @@ export function DialoguesControls() {
             <div className="flex flex-col gap-1.5">
                 <div>
                     <p className="text-sm font-medium leading-none">{t("text_speed")}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                        {t("text_speed_description")}
-                    </p>
                 </div>
                 <div className="flex items-center gap-2">
                     <Slider
@@ -42,7 +37,6 @@ export function DialoguesControls() {
             </div>
 
             <AutoForwardToggle />
-            <SkipToggle />
         </div>
     );
 }
@@ -82,24 +76,6 @@ export function AutoForwardToggle() {
                 <span>1s</span>
                 <span>10s</span>
             </div>
-        </div>
-    );
-}
-
-export function SkipToggle() {
-    const { t } = useTranslation(["ui"]);
-    const enabled = useSelector(SkipSettings.store, (state) => state.enabled);
-
-    return (
-        <div className="flex items-center justify-between gap-4 rounded-md border p-3">
-            <div className="flex-1">
-                <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium leading-none">{t("skip")}</p>
-                    <Kbd>Space</Kbd>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">{t("skip_description")}</p>
-            </div>
-            <Switch checked={enabled} onCheckedChange={SkipSettings.setEnabled} />
         </div>
     );
 }
