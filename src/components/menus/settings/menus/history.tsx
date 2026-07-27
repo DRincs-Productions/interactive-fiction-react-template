@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, FullscreenDialogContent } from "@/components/ui/fullscreen-dialog";
 import { Input } from "@/components/ui/input";
 import {
     Item,
@@ -11,6 +12,7 @@ import {
 import { Kbd } from "@/components/ui/kbd";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useImageSrc } from "@/lib/hooks/image-hooks";
+import { useSearchParamState, useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useQueryNarrativeHistory } from "@/lib/query/narration-query";
 import { cn } from "@/lib/utils";
 import { useDebouncedValue } from "@tanstack/react-pacer";
@@ -160,5 +162,21 @@ export function HistoryListSettingsPage() {
                 </div>
             </ScrollArea>
         </>
+    );
+}
+
+export function HistoryDialog() {
+    const open = useSearchParamState<boolean>("history");
+    const setOpen = useSetSearchParamState<boolean>("history");
+    const { t } = useTranslation(["ui"]);
+
+    return (
+        <Dialog open={open ?? false} onOpenChange={(isOpen) => setOpen(isOpen || undefined)}>
+            <FullscreenDialogContent title={t("history")} centered>
+                {/* Only mount while actually open - avoids querying/rendering the whole
+                narrative history in the background for a dialog nobody is looking at. */}
+                {open && <HistoryListSettingsPage />}
+            </FullscreenDialogContent>
+        </Dialog>
     );
 }

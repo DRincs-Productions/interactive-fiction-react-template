@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { Dialog, FullscreenDialogContent } from "@/components/ui/fullscreen-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDeviceDiagnostics } from "@/lib/hooks/device-diagnostics-hooks";
+import { useSearchParamState, useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import {
     buildDiagnosticsReportText,
     downloadDiagnosticsReportJson,
@@ -254,5 +256,21 @@ export function DiagnosticsSettingsPage() {
                 </DiagnosticsSection>
             </div>
         </ScrollArea>
+    );
+}
+
+export function DiagnosticsDialog() {
+    const open = useSearchParamState<boolean>("diagnostics");
+    const setOpen = useSetSearchParamState<boolean>("diagnostics");
+    const { t } = useTranslation(["ui"]);
+
+    return (
+        <Dialog open={open ?? false} onOpenChange={(isOpen) => setOpen(isOpen || undefined)}>
+            <FullscreenDialogContent title={t("diagnostics")} centered>
+                {/* Only mount while actually open - avoids collecting diagnostics in the
+                background for a dialog nobody is looking at. */}
+                {open && <DiagnosticsSettingsPage />}
+            </FullscreenDialogContent>
+        </Dialog>
     );
 }

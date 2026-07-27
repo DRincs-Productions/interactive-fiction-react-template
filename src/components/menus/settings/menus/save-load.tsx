@@ -1,6 +1,8 @@
 import { GameSaveMenu } from "@/components/menus/save-menu";
 import { Button } from "@/components/ui/button";
+import { Dialog, FullscreenDialogContent } from "@/components/ui/fullscreen-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useSearchParamState, useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { downloadGameSave, loadGameSaveFromFile } from "@/lib/utils/save-utility";
 import type { FileRouteTypes } from "@/routeTree.gen";
@@ -78,5 +80,21 @@ export function SaveLoadSettingsPage() {
             <div className="border-b p-4">{toolbar}</div>
             <GameSaveMenu quickSaves={showQuickSaves} />
         </div>
+    );
+}
+
+export function SaveLoadDialog() {
+    const open = useSearchParamState<boolean>("saves");
+    const setOpen = useSetSearchParamState<boolean>("saves");
+    const { t } = useTranslation(["ui"]);
+
+    return (
+        <Dialog open={open ?? false} onOpenChange={(isOpen) => setOpen(isOpen || undefined)}>
+            <FullscreenDialogContent title={`${t("save")}/${t("load")}`} centered>
+                {/* Only mount while actually open - avoids querying the save list in the
+                background for a dialog nobody is looking at. */}
+                {open && <SaveLoadSettingsPage />}
+            </FullscreenDialogContent>
+        </Dialog>
     );
 }
