@@ -6,7 +6,6 @@ import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { useQueryLastSave } from "@/lib/query/save-query";
-import { InterfaceSettings } from "@/lib/stores/interface-settings-store";
 import { loadRefreshSave, loadSave } from "@/lib/utils/save-utility";
 import { useHotkeys } from "@tanstack/react-hotkeys";
 import { useQueryClient } from "@tanstack/react-query";
@@ -108,9 +107,9 @@ export function MainMenu() {
     ]);
 
     useEffect(() => {
-        InterfaceSettings.setHidden(false);
-
         // Auto-focus the first enabled button so arrow-key navigation works immediately.
+        // preventScroll avoids the browser scrolling the menu's own overflow container
+        // (buttons sit near its bottom) to reveal the newly-focused button on mount.
         const firstItem = menuRef.current?.querySelector<HTMLButtonElement>(
             "button[role='menuitem']:not(:disabled)",
         );
