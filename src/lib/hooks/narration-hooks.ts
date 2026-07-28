@@ -6,8 +6,15 @@ import { PendingLabelAction } from "@/lib/stores/pending-label-action-store";
 import { SearchParams } from "@/lib/stores/search-param-store";
 import { SkipSettings } from "@/lib/stores/skip-settings-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
+import { clearLinkContinueLock, isContinueLockedByLink } from "@/lib/utils/continue-lock-utility";
 import { hasScrollableParent, isScrollableElement } from "@/lib/utils/scroll-utils";
-import { Game, narration, stepHistory, type StoredIndexedChoiceInterface } from "@drincs/pixi-vn";
+import {
+    Game,
+    narration,
+    stepHistory,
+    type LabelIdType,
+    type StoredIndexedChoiceInterface,
+} from "@drincs/pixi-vn";
 import { useDebouncer } from "@tanstack/react-pacer";
 import { useSelector } from "@tanstack/react-store";
 import type React from "react";
@@ -27,7 +34,11 @@ export function useNarrationFunctions() {
         GameStatus.setLoading(true);
         try {
             const pendingLabelAction = PendingLabelAction.consume();
-            if (!pendingLabelAction && !narration.canContinue) {
+            // isContinueLockedByLink is template-only (not a pixi-vn concept): a label step
+            // called requireLinkClickToContinue and the player hasn't followed the required
+            // MarkdownLink yet, so "continue" stays blocked even though narration.canContinue
+            // is true.
+            if (!pendingLabelAction && (!narration.canContinue || isContinueLockedByLink())) {
                 GameStatus.setLoading(false);
                 return;
             }
@@ -37,7 +48,11 @@ export function useNarrationFunctions() {
             // Keep advancing within the current label - a paragraph at a time -
             // until either the player must act (choice/input) or a new label is about to
             // start/close (deferred by PendingLabelAction, resumed on the next goNext).
-            while (!PendingLabelAction.has() && narration.canContinue) {
+            while (
+                !PendingLabelAction.has() &&
+                narration.canContinue &&
+                !isContinueLockedByLink()
+            ) {
                 await narration.continue(gameProps);
             }
             gameProps.invalidateInterfaceData();
@@ -87,11 +102,34 @@ export function useNarrationFunctions() {
         [gameProps, goNext, hasOpenMenu],
     );
 
+    /** Used by MarkdownLink to follow a `[text](labelId)` link in the narration text. */
+    const jumpToLabel = useCallback(
+        async (labelId: LabelIdType) => {
+            if (hasOpenMenu) return;
+            // A required link (see requireLinkClickToContinue) must clear its own lock,
+            // otherwise the goNext below would refuse to advance into the target label.
+            clearLinkContinueLock();
+            GameStatus.setLoading(true);
+            try {
+                await narration.jump(labelId, gameProps);
+            } catch (e) {
+                GameStatus.setLoading(false);
+                console.error(e);
+                return;
+            }
+            // Same reasoning as selectChoice: the jump only defers the label start,
+            // goNext is what actually consumes it.
+            await goNext();
+        },
+        [gameProps, goNext, hasOpenMenu],
+    );
+
     return {
         start,
         goNext,
         goBack,
         selectChoice,
+        jumpToLabel,
     };
 }
 

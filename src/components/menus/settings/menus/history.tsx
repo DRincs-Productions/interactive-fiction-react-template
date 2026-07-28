@@ -1,3 +1,4 @@
+import { markdownComponents } from "@/components/markdown-components";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, FullscreenDialogContent } from "@/components/ui/fullscreen-dialog";
 import { Input } from "@/components/ui/input";
@@ -73,6 +74,7 @@ export function HistoryList({ searchString }: { searchString?: string }) {
                                     remarkPlugins={[remarkGfm]}
                                     rehypePlugins={[rehypeRaw]}
                                     components={{
+                                        ...markdownComponents,
                                         p: ({ children, id }) => (
                                             <p
                                                 key={id}

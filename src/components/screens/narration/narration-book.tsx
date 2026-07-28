@@ -1,4 +1,5 @@
 import { AnimatedDots, DelayedAnimatedDots } from "@/components/loading";
+import { markdownComponents } from "@/components/markdown-components";
 import { ChoiceMenu } from "@/components/menus/choice-menus";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNarrationPointerHandlers } from "@/lib/hooks/narration-hooks";
@@ -138,7 +139,11 @@ export function NarrationBook() {
  */
 const PastParagraph = memo(function PastParagraph({ text }: { text: string }) {
     return (
-        <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+        <Markdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            components={markdownComponents}
+        >
             {text}
         </Markdown>
     );
@@ -211,7 +216,10 @@ const LastParagraph = memo(function LastParagraph({
         [containerRef],
     );
 
-    const markdownComponents = useMemo(() => ({ p: (props: object) => <span {...props} /> }), []);
+    const lastParagraphComponents = useMemo(
+        () => ({ ...markdownComponents, p: (props: object) => <span {...props} /> }),
+        [],
+    );
 
     const motionProps = useMemo(
         () => ({
@@ -245,7 +253,7 @@ const LastParagraph = memo(function LastParagraph({
                     <Markdown
                         remarkPlugins={[remarkGfm]}
                         rehypePlugins={[rehypeRaw]}
-                        components={markdownComponents}
+                        components={lastParagraphComponents}
                     >
                         {staticText}
                     </Markdown>
@@ -255,6 +263,7 @@ const LastParagraph = memo(function LastParagraph({
                 <MarkdownTypewriterHooks
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeRaw]}
+                    components={markdownComponents}
                     delay={typewriterDelay}
                     motionProps={motionProps}
                     fallback={<DelayedAnimatedDots />}

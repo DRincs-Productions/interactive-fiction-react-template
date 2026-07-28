@@ -16,6 +16,8 @@ declare module "@drincs/pixi-vn/narration" {
         "start": never;
         "start_memory": never;
         "start_hall": never;
+        "notice_board": never;
+        "start_hall_task": never;
     }
 }
 declare module "@drincs/pixi-vn/canvas" {
@@ -33,8 +35,8 @@ declare module "@drincs/pixi-vn/canvas" {
 }
 export const characterIds = ["mc","gatekeeper","steward"] as const;
 export const characterIdsEnum = {"mc":"mc","gatekeeper":"gatekeeper","steward":"steward"} as const;
-export const labelIds = ["second_part","second_part_omen","second_part_end","start","start_memory","start_hall"] as const;
-export const labelIdsEnum = {"second_part":"second_part","second_part_omen":"second_part_omen","second_part_end":"second_part_end","start":"start","start_memory":"start_memory","start_hall":"start_hall"} as const;
+export const labelIds = ["second_part","second_part_omen","second_part_end","start","start_memory","start_hall","notice_board","start_hall_task"] as const;
+export const labelIdsEnum = {"second_part":"second_part","second_part_omen":"second_part_omen","second_part_end":"second_part_end","start":"start","start_memory":"start_memory","start_hall":"start_hall","notice_board":"notice_board","start_hall_task":"start_hall_task"} as const;
 export const bundleIds = ["audio","/"] as const;
 export const bundleIdsEnum = {"audio":"audio","/":"/"} as const;
 export const assetAliasIds = ["bgm_medieval_hall","sfx_gate_creak","sfx_rain_ambience","sfx_torch_crackle","background_main_menu"] as const;

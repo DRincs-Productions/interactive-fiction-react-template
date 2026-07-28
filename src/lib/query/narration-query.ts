@@ -1,4 +1,5 @@
 import { NARRATION_DATA_USE_QUERY_KEY } from "@/constants";
+import { isContinueLockedByLink } from "@/lib/utils/continue-lock-utility";
 import { narration, stepHistory } from "@drincs/pixi-vn";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -97,7 +98,8 @@ const CAN_GO_NEXT_USE_QUERY_KEY = "can_go_next_use_query_key";
 export function useQueryCanGoNext() {
     return useQuery({
         queryKey: [NARRATION_DATA_USE_QUERY_KEY, CAN_GO_NEXT_USE_QUERY_KEY],
-        queryFn: async () => narration.canContinue && !narration.isRequiredInput,
+        queryFn: async () =>
+            narration.canContinue && !narration.isRequiredInput && !isContinueLockedByLink(),
     });
 }
 

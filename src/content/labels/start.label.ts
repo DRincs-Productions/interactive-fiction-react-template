@@ -1,5 +1,6 @@
 import { BGM_CHANNEL_NAME } from "@/constants";
 import { gatekeeper, mc, steward } from "@/content/characters";
+import { requireLinkClickToContinue } from "@/lib/utils/continue-lock-utility";
 import { narration, newChoiceOption, newCloseChoiceOption, newLabel, sound } from "@drincs/pixi-vn";
 
 export const startLabel = newLabel("start", [
@@ -59,7 +60,7 @@ newLabel("start_hall", [
     () => {
         sound.stop("sfx_rain_ambience");
         sound.play("bgm_medieval_hall", { channel: BGM_CHANNEL_NAME, loop: true });
-        narration.dialogue = `The Great Hall smells of woodsmoke and old wax. An elderly steward looks up from a ledger as you enter.`;
+        narration.dialogue = `The Great Hall smells of woodsmoke and old wax. Above the hearth hangs a painted view of the keep at midsummer: ![The keep in summer](background_main_menu)`;
     },
     () => {
         narration.dialogue = { character: mc, text: `"I'm here about the work," you say.` };
@@ -73,6 +74,25 @@ newLabel("start_hall", [
             text: `"Then you'll want to prove you're worth feeding, first."`,
         };
     },
+    () => {
+        requireLinkClickToContinue();
+        narration.dialogue = {
+            character: steward,
+            text: `He nods toward a nail-worn notice pinned by the door. [Read the notice](notice_board)`,
+        };
+    },
+]);
+
+newLabel("notice_board", [
+    () => {
+        narration.dialogue = `The notice is short and blunt: "Seeking able hands. Nights only. Ask the steward." Nothing you didn't already gather.`;
+    },
+    (props) => {
+        return narration.jump("start_hall_task", props);
+    },
+]);
+
+newLabel("start_hall_task", [
     () => {
         narration.dialogGlue = true;
         narration.dialogue = {
