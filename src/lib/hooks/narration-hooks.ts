@@ -110,7 +110,6 @@ export function useNarrationFunctions() {
         async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
             GameStatus.setLoading(true);
             return Game.start(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
-                .then(() => gameProps.invalidateInterfaceData())
                 .then(() => goNext())
                 .catch((e) => {
                     GameStatus.setLoading(false);
@@ -127,10 +126,7 @@ export function useNarrationFunctions() {
             clearLinkContinueLock();
             return narration
                 .jump(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
-                .then((result) => {
-                    gameProps.invalidateInterfaceData();
-                    return goNext().then(() => result);
-                })
+                .then((result) => goNext().then(() => result))
                 .catch((e) => {
                     GameStatus.setLoading(false);
                     console.error(e);
@@ -146,10 +142,7 @@ export function useNarrationFunctions() {
             clearLinkContinueLock();
             return narration
                 .call(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
-                .then((result) => {
-                    gameProps.invalidateInterfaceData();
-                    return goNext().then(() => result);
-                })
+                .then((result) => goNext().then(() => result))
                 .catch((e) => {
                     GameStatus.setLoading(false);
                     console.error(e);
