@@ -57,12 +57,24 @@ export function useNarrationFunctions() {
             // Keep advancing within the current label - a paragraph at a time -
             // until either the player must act (choice/input) or a new label is about to
             // start/close (deferred by PendingLabelAction, resumed on the next goNext).
+            let revealedFirstStep = false;
             while (
                 !PendingLabelAction.has() &&
                 narration.canContinue &&
                 !isContinueLockedByLink()
             ) {
                 await narration.continue(gameProps);
+                if (!revealedFirstStep) {
+                    // Reveal the very first step immediately so the typewriter starts
+                    // right away, instead of waiting for the whole batch of steps below
+                    // (label transitions, sound cues, etc.) to finish processing first.
+                    // The rest keeps advancing in the background while it plays.
+                    revealedFirstStep = true;
+                    gameProps.invalidateInterfaceData();
+                }
+            }
+            if (revealedFirstStep) {
+                await TextDisplaySettings.waitUntilIdle();
             }
             gameProps.invalidateInterfaceData();
             GameStatus.setLoading(false);
