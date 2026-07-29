@@ -6,7 +6,7 @@ import { PendingLabelAction } from "@/lib/stores/pending-label-action-store";
 import { SearchParams } from "@/lib/stores/search-param-store";
 import { SkipSettings } from "@/lib/stores/skip-settings-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
-import { isContinueLockedByLink } from "@/lib/utils/continue-lock-utility";
+import { clearLinkContinueLock, isContinueLockedByLink } from "@/lib/utils/continue-lock-utility";
 import { hasScrollableParent, isScrollableElement } from "@/lib/utils/scroll-utils";
 import {
     Game,
@@ -124,38 +124,38 @@ export function useNarrationFunctions() {
         async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
             if (hasOpenMenu) return;
             GameStatus.setLoading(true);
+            clearLinkContinueLock();
             return narration
                 .jump(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
                 .then((result) => {
                     gameProps.invalidateInterfaceData();
-                    GameStatus.setLoading(false);
-                    return result;
+                    return goNext().then(() => result);
                 })
                 .catch((e) => {
                     GameStatus.setLoading(false);
                     console.error(e);
                 });
         },
-        [gameProps, hasOpenMenu],
+        [gameProps, goNext, hasOpenMenu],
     );
 
     const call = useCallback(
         async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
             if (hasOpenMenu) return;
             GameStatus.setLoading(true);
+            clearLinkContinueLock();
             return narration
                 .call(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
                 .then((result) => {
                     gameProps.invalidateInterfaceData();
-                    GameStatus.setLoading(false);
-                    return result;
+                    return goNext().then(() => result);
                 })
                 .catch((e) => {
                     GameStatus.setLoading(false);
                     console.error(e);
                 });
         },
-        [gameProps, hasOpenMenu],
+        [gameProps, goNext, hasOpenMenu],
     );
 
     return {
