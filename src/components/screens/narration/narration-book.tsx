@@ -5,8 +5,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNarrationPointerHandlers } from "@/lib/hooks/narration-hooks";
 import { useQueryNarrationParagraphs } from "@/lib/query/narration-query";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { useSelector } from "@tanstack/react-store";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import {
     type RefObject,
     memo,
@@ -61,20 +61,11 @@ export function NarrationBook() {
         getItemKey: (index) => pastParagraphs[index]?.key ?? index,
     });
 
-    // The very first fetch (e.g. right after starting/loading a game) can take a
-    // while - without this, the screen was just blank with nothing to show it's
-    // working. This also keeps ChoiceMenu (rendered below, only reachable through
-    // this branch) from ever mounting before there's any question text to read.
     if (paragraphsLoading) {
         return (
             <div className="flex min-h-0 flex-1 flex-col">
                 <ScrollArea className="h-full">
                     <div className="prose dark:prose-invert max-w-full px-1.5 py-4 sm:px-3">
-                        {/* Mirrors LastParagraph's own wrapper below (including the outer
-                        pb-4 div) so the dots land at the exact same position: without that
-                        wrapper, the <p> would be prose's direct first child and get its
-                        margin-top reset to 0 - wrapped, prose's own ~20px paragraph margin
-                        applies uncontested (m-0 loses that specificity fight), same as here. */}
                         <div className="pb-4">
                             <p className="prose dark:prose-invert m-0 max-w-full p-0">
                                 <AnimatedDots />
