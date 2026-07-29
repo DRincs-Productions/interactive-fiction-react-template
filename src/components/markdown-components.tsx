@@ -60,7 +60,7 @@ function splitForTypewriter(node: React.ReactNode, keyPrefix: string): React.Rea
  * href is rendered as a regular external link.
  */
 export const MarkdownLink: Components["a"] = ({ href, children }) => {
-    const { jumpToLabel } = useNarrationFunctions();
+    const { jump } = useNarrationFunctions();
     const isLabelLink = typeof href === "string" && RegisteredLabels.has(href);
     const animatedChildren = splitForTypewriter(children, "link-char");
 
@@ -74,10 +74,10 @@ export const MarkdownLink: Components["a"] = ({ href, children }) => {
             e.preventDefault();
             e.stopPropagation();
             if (isLabelLink) {
-                void jumpToLabel(href as LabelIdType);
+                void jump(href as LabelIdType);
             }
         },
-        [href, isLabelLink, jumpToLabel],
+        [href, isLabelLink, jump],
     );
 
     if (!isLabelLink) {

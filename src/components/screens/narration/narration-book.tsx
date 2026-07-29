@@ -1,4 +1,4 @@
-import { DelayedAnimatedDots } from "@/components/loading";
+import { DelayedAnimatedDots, NextStepLoadingDots } from "@/components/loading";
 import { markdownComponents } from "@/components/markdown-components";
 import { ChoiceMenu } from "@/components/menus/choice-menus";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -254,11 +254,7 @@ const LastParagraph = memo(function LastParagraph({
                     {animatedText}
                 </MarkdownTypewriterHooks>
             </span>
-            {nextStepLoading && !typewriterInProgress && (
-                <span className="ml-1 inline-flex">
-                    <DelayedAnimatedDots />
-                </span>
-            )}
+            <NextStepLoadingDots />
         </p>
     );
 });
