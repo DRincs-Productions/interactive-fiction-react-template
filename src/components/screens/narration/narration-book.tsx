@@ -4,7 +4,6 @@ import { ChoiceMenu } from "@/components/menus/choice-menus";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNarrationPointerHandlers } from "@/lib/hooks/narration-hooks";
 import { useQueryNarrationParagraphs } from "@/lib/query/narration-query";
-import { GameStatus } from "@/lib/stores/game-status-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { useSelector } from "@tanstack/react-store";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -169,12 +168,6 @@ const LastParagraph = memo(function LastParagraph({
     containerRef: RefObject<HTMLDivElement | null>;
 }) {
     const typewriterDelay = useSelector(TextDisplaySettings.store, (state) => state.delay);
-    const nextStepLoading = useSelector(GameStatus.store, (state) => state.loading);
-    // The typewriter shows its own dots while animating, so only show these when it isn't.
-    const typewriterInProgress = useSelector(
-        TextDisplaySettings.store,
-        (state) => state.inProgress,
-    );
     const { staticText, animatedText, finalize } = useAnimatedText(text);
 
     const handleCharacterAnimationComplete = useCallback(
