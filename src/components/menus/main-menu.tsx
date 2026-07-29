@@ -6,9 +6,11 @@ import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { useQueryLastSave } from "@/lib/query/save-query";
+import { GameStatus } from "@/lib/stores/game-status-store";
 import { loadRefreshSave, loadSave } from "@/lib/utils/save-utility";
 import { useHotkeys } from "@tanstack/react-hotkeys";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSelector } from "@tanstack/react-store";
 import { AlertCircle, CirclePlay, Play, Save, Settings } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -22,8 +24,8 @@ export function MainMenu() {
     const { uiTransition: t, navigate } = gameProps;
     const setSettings = useSetSearchParamState<boolean>("settings");
     const setSaves = useSetSearchParamState<boolean>("saves");
-    const { start } = useNarrationFunctions();
-    const [loading, setLoading] = useState(false);
+    const { startNewGame } = useNarrationFunctions();
+    const loading = useSelector(GameStatus.store, (state) => state.loading);
     const menuRef = useRef<HTMLDivElement>(null);
 
     /** Returns all enabled menuitem buttons inside the menu container. */
@@ -156,15 +158,15 @@ export function MainMenu() {
                 role="menu"
                 className="flex w-full flex-col items-center gap-2 pb-4 sm:w-auto sm:flex-row sm:gap-3"
             >
-                <ContinueMenuButton disabled={loading} onLoadingChange={setLoading} />
+                <ContinueMenuButton disabled={loading} onLoadingChange={GameStatus.setLoading} />
 
                 <Button
                     role="menuitem"
                     size="lg"
                     onClick={async () => {
-                        setLoading(true);
+                        GameStatus.setLoading(true);
                         await navigate({ to: "/game/narration" });
-                        start().finally(() => setLoading(false));
+                        startNewGame("start");
                     }}
                     disabled={loading}
                     className={menuButtonClass}

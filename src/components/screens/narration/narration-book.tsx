@@ -1,9 +1,10 @@
-import { AnimatedDots, DelayedAnimatedDots } from "@/components/loading";
+import { DelayedAnimatedDots } from "@/components/loading";
 import { markdownComponents } from "@/components/markdown-components";
 import { ChoiceMenu } from "@/components/menus/choice-menus";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNarrationPointerHandlers } from "@/lib/hooks/narration-hooks";
 import { useQueryNarrationParagraphs } from "@/lib/query/narration-query";
+import { GameStatus } from "@/lib/stores/game-status-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { useSelector } from "@tanstack/react-store";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -33,7 +34,7 @@ const ESTIMATED_PARAGRAPH_HEIGHT_PX = 88;
  * both render and layout cost even with PastParagraph memoized.
  */
 export function NarrationBook() {
-    const { data: paragraphs = [], isLoading: paragraphsLoading } = useQueryNarrationParagraphs();
+    const { data: paragraphs = [] } = useQueryNarrationParagraphs();
     const nonEmptyParagraphs = useMemo(
         () => paragraphs.filter((paragraph) => paragraph.text),
         [paragraphs],
@@ -60,22 +61,6 @@ export function NarrationBook() {
         overscan: 6,
         getItemKey: (index) => pastParagraphs[index]?.key ?? index,
     });
-
-    if (paragraphsLoading) {
-        return (
-            <div className="flex min-h-0 flex-1 flex-col">
-                <ScrollArea className="h-full">
-                    <div className="prose dark:prose-invert max-w-full px-1.5 py-4 sm:px-3">
-                        <div className="pb-4">
-                            <p className="prose dark:prose-invert m-0 max-w-full p-0">
-                                <AnimatedDots />
-                            </p>
-                        </div>
-                    </div>
-                </ScrollArea>
-            </div>
-        );
-    }
 
     if (nonEmptyParagraphs.length === 0) {
         return null;
@@ -184,6 +169,12 @@ const LastParagraph = memo(function LastParagraph({
     containerRef: RefObject<HTMLDivElement | null>;
 }) {
     const typewriterDelay = useSelector(TextDisplaySettings.store, (state) => state.delay);
+    const nextStepLoading = useSelector(GameStatus.store, (state) => state.loading);
+    // The typewriter shows its own dots while animating, so only show these when it isn't.
+    const typewriterInProgress = useSelector(
+        TextDisplaySettings.store,
+        (state) => state.inProgress,
+    );
     const { staticText, animatedText, finalize } = useAnimatedText(text);
 
     const handleCharacterAnimationComplete = useCallback(
@@ -263,6 +254,11 @@ const LastParagraph = memo(function LastParagraph({
                     {animatedText}
                 </MarkdownTypewriterHooks>
             </span>
+            {nextStepLoading && !typewriterInProgress && (
+                <span className="ml-1 inline-flex">
+                    <DelayedAnimatedDots />
+                </span>
+            )}
         </p>
     );
 });

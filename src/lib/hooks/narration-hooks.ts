@@ -6,13 +6,15 @@ import { PendingLabelAction } from "@/lib/stores/pending-label-action-store";
 import { SearchParams } from "@/lib/stores/search-param-store";
 import { SkipSettings } from "@/lib/stores/skip-settings-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
-import { clearLinkContinueLock, isContinueLockedByLink } from "@/lib/utils/continue-lock-utility";
+import { isContinueLockedByLink } from "@/lib/utils/continue-lock-utility";
 import { hasScrollableParent, isScrollableElement } from "@/lib/utils/scroll-utils";
 import {
     Game,
     narration,
     stepHistory,
+    type LabelAbstract,
     type LabelIdType,
+    type StepLabelPropsType,
     type StoredIndexedChoiceInterface,
 } from "@drincs/pixi-vn";
 import { useDebouncer } from "@tanstack/react-pacer";
@@ -20,6 +22,13 @@ import { useSelector } from "@tanstack/react-store";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
+/**
+ * Functions meant to be triggered from UI (buttons, hotkeys, pointer handlers, etc.).
+ * They must not be called from within a label's step: they manage UI-only concerns
+ * (e.g. {@link GameStatus} loading state, blocking while a menu is open) that a step
+ * running as part of the narration itself should not go through. Inside a label, use
+ * `narration` directly (e.g. `narration.jump`, `narration.call`) instead of these.
+ */
 export function useNarrationFunctions() {
     const gameProps = useGameProps();
     const searchParams = useSelector(SearchParams.store, (state) => state);
@@ -63,11 +72,6 @@ export function useNarrationFunctions() {
         }
     }, [gameProps, hasOpenMenu]);
 
-    const start = useCallback(async () => {
-        await Game.start("start", gameProps);
-        await goNext();
-    }, [gameProps, goNext]);
-
     const goBack = useCallback(async () => {
         if (hasOpenMenu) return;
         GameStatus.setLoading(true);
@@ -102,34 +106,65 @@ export function useNarrationFunctions() {
         [gameProps, goNext, hasOpenMenu],
     );
 
-    /** Used by MarkdownLink to follow a `[text](labelId)` link in the narration text. */
-    const jumpToLabel = useCallback(
-        async (labelId: LabelIdType) => {
-            if (hasOpenMenu) return;
-            // A required link (see requireLinkClickToContinue) must clear its own lock,
-            // otherwise the goNext below would refuse to advance into the target label.
-            clearLinkContinueLock();
+    const startNewGame = useCallback(
+        async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
             GameStatus.setLoading(true);
-            try {
-                await narration.jump(labelId, gameProps);
-            } catch (e) {
-                GameStatus.setLoading(false);
-                console.error(e);
-                return;
-            }
-            // Same reasoning as selectChoice: the jump only defers the label start,
-            // goNext is what actually consumes it.
-            await goNext();
+            return Game.start(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
+                .then(() => gameProps.invalidateInterfaceData())
+                .then(() => goNext())
+                .catch((e) => {
+                    GameStatus.setLoading(false);
+                    console.error(e);
+                });
         },
-        [gameProps, goNext, hasOpenMenu],
+        [gameProps, goNext],
+    );
+
+    const jump = useCallback(
+        async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
+            if (hasOpenMenu) return;
+            GameStatus.setLoading(true);
+            return narration
+                .jump(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
+                .then((result) => {
+                    gameProps.invalidateInterfaceData();
+                    GameStatus.setLoading(false);
+                    return result;
+                })
+                .catch((e) => {
+                    GameStatus.setLoading(false);
+                    console.error(e);
+                });
+        },
+        [gameProps, hasOpenMenu],
+    );
+
+    const call = useCallback(
+        async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
+            if (hasOpenMenu) return;
+            GameStatus.setLoading(true);
+            return narration
+                .call(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
+                .then((result) => {
+                    gameProps.invalidateInterfaceData();
+                    GameStatus.setLoading(false);
+                    return result;
+                })
+                .catch((e) => {
+                    GameStatus.setLoading(false);
+                    console.error(e);
+                });
+        },
+        [gameProps, hasOpenMenu],
     );
 
     return {
-        start,
         goNext,
         goBack,
         selectChoice,
-        jumpToLabel,
+        startNewGame,
+        jump,
+        call,
     };
 }
 
