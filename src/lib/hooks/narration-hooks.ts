@@ -7,7 +7,6 @@ import { SearchParams } from "@/lib/stores/search-param-store";
 import { SkipSettings } from "@/lib/stores/skip-settings-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { clearLinkContinueLock, isContinueLockedByLink } from "@/lib/utils/continue-lock-utility";
-import { hasScrollableParent, isScrollableElement } from "@/lib/utils/scroll-utils";
 import {
     Game,
     narration,
@@ -199,7 +198,8 @@ export function useNarrationPointerHandlers() {
     const handlePointerDown = useCallback(
         (e: React.PointerEvent) => {
             if (e.button !== 0) return;
-            if (hasScrollableParent(e.target)) return;
+            // Let the scroll area's own scrollbar manage its drag behaviour.
+            if ((e.target as HTMLElement).closest('[data-slot="scroll-area-scrollbar"]')) return;
 
             longPressTriggered.current = false;
             pointerDownPos.current = { x: e.clientX, y: e.clientY };
@@ -246,8 +246,6 @@ export function useNarrationPointerHandlers() {
 
             // Let resize handles manage their own drag behaviour
             if ((e.target as HTMLElement).closest('[data-slot="resizable-handle"]')) return;
-            // Let native scrollbar interactions through
-            if (isScrollableElement(e.target as HTMLElement)) return;
 
             if (longPressTriggered.current) {
                 SkipSettings.setEnabled(false);
