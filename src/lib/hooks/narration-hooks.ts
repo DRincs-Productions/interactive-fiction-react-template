@@ -62,19 +62,26 @@ export function useNarrationFunctions() {
                 narration.canContinue &&
                 !isContinueLockedByLink()
             ) {
-                await narration.continue(gameProps);
-                if (!revealedFirstStep) {
-                    // Reveal the very first step immediately so the typewriter starts
-                    // right away, instead of waiting for the whole batch of steps below
-                    // (label transitions, sound cues, etc.) to finish processing first.
-                    // The rest keeps advancing in the background while it plays.
-                    revealedFirstStep = true;
-                    gameProps.invalidateInterfaceData();
+                if (revealedFirstStep) {
+                    // Let the paragraph just revealed actually finish typing before asking
+                    // for another one - otherwise, for label steps that don't each require
+                    // player input (sound cues, narration-only lines), this loop races
+                    // straight through all of them and only the very last one ever gets
+                    // rendered as the (typewriter-animated) "last paragraph"; every one
+                    // before it gets demoted to an instantly-rendered "past" paragraph
+                    // mid-animation - which is why an embedded image or link nowhere near
+                    // the end of a burst would appear to skip its typewriter turn entirely.
+                    await TextDisplaySettings.waitUntilIdle();
                 }
+                await narration.continue(gameProps);
+                // Reveal each step as soon as it's ready so the typewriter starts right
+                // away, instead of waiting for the whole batch of steps below (label
+                // transitions, sound cues, etc.) to finish processing first.
+                revealedFirstStep = true;
+                gameProps.invalidateInterfaceData();
             }
-            if (revealedFirstStep) {
-                await TextDisplaySettings.waitUntilIdle();
-            }
+            // Covers the case where the loop body never ran at all (e.g. pendingLabelAction
+            // changed state - opened a choice menu - without any narration.continue call).
             gameProps.invalidateInterfaceData();
             GameStatus.setLoading(false);
         } catch (e) {
