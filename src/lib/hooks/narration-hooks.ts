@@ -76,13 +76,19 @@ export function useNarrationFunctions() {
                 await narration.continue(gameProps);
                 // Reveal each step as soon as it's ready so the typewriter starts right
                 // away, instead of waiting for the whole batch of steps below (label
-                // transitions, sound cues, etc.) to finish processing first.
+                // transitions, sound cues, etc.) to finish processing first. This MUST be
+                // awaited: waitUntilIdle() falls back to a fixed timeout if the typewriter
+                // hasn't signalled `start()` yet, and it can't have if React hasn't even
+                // re-rendered this step's paragraph into existence - an unawaited call here
+                // raced ahead into that fallback (worse on a cold/first render, which is
+                // slower to commit), skipping the just-revealed paragraph's animation
+                // entirely, image/link included.
                 revealedFirstStep = true;
-                gameProps.invalidateInterfaceData();
+                await gameProps.invalidateInterfaceData();
             }
             // Covers the case where the loop body never ran at all (e.g. pendingLabelAction
             // changed state - opened a choice menu - without any narration.continue call).
-            gameProps.invalidateInterfaceData();
+            await gameProps.invalidateInterfaceData();
             GameStatus.setLoading(false);
         } catch (e) {
             GameStatus.setLoading(false);
