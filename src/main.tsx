@@ -46,7 +46,7 @@ Game.addOnError((error, { toast, uiTransition }) => {
 Game.onLabelStarting((labelId, _props, options, defaultStart) => {
     // Let the very first label of a game (no label active yet, e.g. Game.start) begin
     // immediately; only defer label starts that happen mid-story (see PendingLabelAction).
-    if (!narration.currentLabel) {
+    if (!narration.labels.current) {
         return defaultStart();
     }
     PendingLabelAction.setStart(labelId, options, defaultStart);
