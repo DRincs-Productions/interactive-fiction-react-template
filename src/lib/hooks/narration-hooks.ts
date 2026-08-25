@@ -116,7 +116,7 @@ export function useNarrationFunctions() {
             if (hasOpenMenu) return;
             GameStatus.setLoading(true);
             try {
-                await narration.selectChoice(item, gameProps);
+                await narration.choices.select(item, gameProps);
             } catch (e) {
                 GameStatus.setLoading(false);
                 console.error(e);

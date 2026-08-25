@@ -22,11 +22,11 @@ export const startLabel = newLabel("start", [
         };
     },
     () => {
-        narration.requestInput({ type: "string" }, "Edmund");
+        narration.input.request({ type: "string" }, "Edmund");
         narration.dialogue = `He waits for your name.`;
     },
     async (props) => {
-        mc.name = (narration.inputValue as string) || mc.name;
+        mc.name = (narration.input.value as string) || mc.name;
         narration.dialogue = {
             character: mc,
             text: `"${mc.name}," you call back. "I was told the steward is hiring hands before winter."`,

@@ -10,15 +10,15 @@ const CONTINUE_LOCKED_BY_LINK_FLAG = "_continueLockedByLink";
  * it isn't part of pixi-vn itself, see `useNarrationFunctions.goNext` and `useQueryCanGoNext`.
  */
 export function requireLinkClickToContinue() {
-    storage.setFlag(CONTINUE_LOCKED_BY_LINK_FLAG, true);
+    storage.flags.set(CONTINUE_LOCKED_BY_LINK_FLAG, true);
 }
 
 /** Whether "continue" is currently blocked by `requireLinkClickToContinue`. */
 export function isContinueLockedByLink() {
-    return storage.getFlag(CONTINUE_LOCKED_BY_LINK_FLAG);
+    return storage.flags.get(CONTINUE_LOCKED_BY_LINK_FLAG);
 }
 
 /** Clears the lock set by `requireLinkClickToContinue`. Called automatically by `MarkdownLink`. */
 export function clearLinkContinueLock() {
-    storage.setFlag(CONTINUE_LOCKED_BY_LINK_FLAG, false);
+    storage.flags.set(CONTINUE_LOCKED_BY_LINK_FLAG, false);
 }

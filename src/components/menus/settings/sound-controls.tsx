@@ -42,7 +42,7 @@ export function SoundControls() {
                 />
 
                 <AccordionContent className="flex flex-col gap-4 pt-3">
-                    {sound.channels.map((c) => (
+                    {sound.channels.values.map((c) => (
                         <SoundChannelControl
                             key={c.alias}
                             label={t(`${c.alias}_volume`)}

@@ -17,19 +17,19 @@ stepHistory.goBackMode = "paragraph";
 
 Game.init().then(() => {
     // Sound setup
-    sound.addChannel(BGM_CHANNEL_NAME, { background: true });
-    sound.addChannel(SFX_CHANNEL_NAME);
+    sound.channels.add(BGM_CHANNEL_NAME, { background: true });
+    sound.channels.add(SFX_CHANNEL_NAME);
     sound.defaultChannelAlias = SFX_CHANNEL_NAME;
     MasterSound.init();
     ChannelSound.init();
 
     // React setup with ReactDOM
-    const root = document.getElementById("root");
-    if (!root) {
+    const htmlLayout = document.getElementById("root");
+    if (!htmlLayout) {
         throw new Error("root element not found");
     }
 
-    const reactRoot = createRoot(root);
+    const reactRoot = createRoot(htmlLayout);
     reactRoot.render(<App />);
 });
 

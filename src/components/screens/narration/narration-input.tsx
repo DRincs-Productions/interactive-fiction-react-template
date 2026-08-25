@@ -40,7 +40,7 @@ export function NarrationInput() {
         if (!canConfirm) {
             return;
         }
-        narration.inputValue = tempValue || currentValue;
+        narration.input.value = tempValue || currentValue;
         setTempValue(undefined);
         goNext();
     }, [canConfirm, currentValue, goNext, tempValue]);
