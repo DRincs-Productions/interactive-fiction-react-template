@@ -97,11 +97,7 @@ export function NarrationBook() {
                         </div>
                     )}
                     <div className="pb-4">
-                        <LastParagraph
-                            paragraphKey={lastParagraph.key}
-                            text={lastParagraph.text}
-                            containerRef={bookRef}
-                        />
+                        <LastParagraph text={lastParagraph.text} containerRef={bookRef} />
                     </div>
                     <ChoiceMenu />
                 </div>
@@ -131,16 +127,11 @@ const PastParagraph = memo(function PastParagraph({ text }: { text: string }) {
 /**
  * Tracks how much of `text` has already been fully typed out, so that only the
  * newly appended tail is animated when the paragraph grows (or, on skip, none of it).
- *
- * `key` (a paragraph's stable stepIndex, see {@link useQueryNarrationParagraphs}) is what
- * lets this recognize a paragraph as already-read after going back and forward again: once
- * a key finishes typing it's remembered in `seenKeysRef`, so revisiting it - even though its
- * text has no prefix relationship with whatever paragraph was shown most recently - shows
- * instantly instead of replaying the whole typewriter animation.
+ * Going back or forward to a *different* paragraph always re-types it from scratch,
+ * even if it was already read before - the player wants to see the animation again.
  */
-function useAnimatedText(key: number, text: string) {
+function useAnimatedText(text: string) {
     const shownRef = useRef("");
-    const seenKeysRef = useRef<Set<number>>(new Set());
     const forceComplete = useSelector(TextDisplaySettings.store, (state) => state.forceComplete);
 
     let staticText: string;
@@ -151,10 +142,6 @@ function useAnimatedText(key: number, text: string) {
     } else if (text.startsWith(shownRef.current)) {
         staticText = shownRef.current;
         animatedText = text.slice(shownRef.current.length);
-    } else if (shownRef.current.startsWith(text) || seenKeysRef.current.has(key)) {
-        // Navigated back to a paragraph that was already fully read - show it instantly.
-        staticText = text;
-        animatedText = "";
     } else {
         staticText = "";
         animatedText = text;
@@ -162,8 +149,7 @@ function useAnimatedText(key: number, text: string) {
 
     const finalize = useCallback(() => {
         shownRef.current = text;
-        seenKeysRef.current.add(key);
-    }, [text, key]);
+    }, [text]);
 
     useEffect(() => {
         if (forceComplete) finalize();
@@ -173,16 +159,14 @@ function useAnimatedText(key: number, text: string) {
 }
 
 const LastParagraph = memo(function LastParagraph({
-    paragraphKey,
     text,
     containerRef,
 }: {
-    paragraphKey: number;
     text: string;
     containerRef: RefObject<HTMLDivElement | null>;
 }) {
     const typewriterDelay = useSelector(TextDisplaySettings.store, (state) => state.delay);
-    const { staticText, animatedText, finalize } = useAnimatedText(paragraphKey, text);
+    const { staticText, animatedText, finalize } = useAnimatedText(text);
 
     const handleCharacterAnimationComplete = useCallback(
         (ref: { current: HTMLSpanElement | null }) => {
