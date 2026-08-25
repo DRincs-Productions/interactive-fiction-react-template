@@ -22,7 +22,6 @@ export function NarrationMenubar() {
     const { data: canGoBack = false } = useQueryCanGoBack();
     const loading = useSelector(GameStatus.store, (state) => state.loading);
     const { goBack } = useNarrationFunctions();
-    const setHistory = useSetSearchParamState<boolean>("history");
     const setSaves = useSetSearchParamState<boolean>("saves");
     const setSettings = useSetSearchParamState<boolean>("settings");
 
@@ -35,7 +34,6 @@ export function NarrationMenubar() {
                         <MenubarItem disabled={!canGoBack || loading} onClick={() => goBack()}>
                             {t("back")}
                         </MenubarItem>
-                        <MenubarItem onClick={() => setHistory(true)}>{t("history")}</MenubarItem>
                         <MenubarSeparator />
                         <MenubarItem onClick={() => setSaves(true)}>
                             {t("save")}/{t("load")}

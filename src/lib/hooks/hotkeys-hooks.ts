@@ -212,13 +212,8 @@ export function useSettingsHotkeys(): null {
 }
 
 export function useGameHotkeys(): null {
-    const setHistory = useSetSearchParamState<boolean>("history");
     const { t } = useTranslation(["ui"]);
     const { isAnyMenuOrDialogOpen } = useMenuDialogState();
-
-    const openHistoryPage = useCallback(() => {
-        setHistory(true);
-    }, [setHistory]);
 
     const toggleQuickActionsWheel = useCallback(() => {
         const isOpen = QuickActionsWheelState.store.state.open;
@@ -230,17 +225,6 @@ export function useGameHotkeys(): null {
     }, []);
 
     useHotkeys([
-        {
-            hotkey: "H",
-            callback: openHistoryPage,
-            options: {
-                enabled: !isAnyMenuOrDialogOpen,
-                meta: {
-                    name: t("history"),
-                    description: t("history_hotkey_description"),
-                },
-            },
-        },
         {
             hotkey: "Tab",
             callback: toggleQuickActionsWheel,

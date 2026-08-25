@@ -26,8 +26,6 @@
     "fullscreen": "Fullscreen",
     "fullscreen_description": "Toggle fullscreen mode.",
     "hide_ui": "Hide UI",
-    "history": "History",
-    "history_hotkey_description": "Open settings directly on the history list.",
     "load": "Load",
     "load_from_file": "Load from File",
     "load_last_save": "Load Last Save",
