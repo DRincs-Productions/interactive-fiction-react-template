@@ -24,12 +24,12 @@ Game.init().then(() => {
     ChannelSound.init();
 
     // React setup with ReactDOM
-    const htmlLayout = document.getElementById("root");
-    if (!htmlLayout) {
+    const root = document.getElementById("root");
+    if (!root) {
         throw new Error("root element not found");
     }
 
-    const reactRoot = createRoot(htmlLayout);
+    const reactRoot = createRoot(root);
     reactRoot.render(<App />);
 });
 
