@@ -80,7 +80,9 @@ function SoundRow({
         <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-2">
                 <div>
-                    <p className="text-sm font-medium leading-none">{label}</p>
+                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                        {label}
+                    </h3>
                     {helper && <p className="mt-1 text-xs text-muted-foreground">{helper}</p>}
                 </div>
                 {action}

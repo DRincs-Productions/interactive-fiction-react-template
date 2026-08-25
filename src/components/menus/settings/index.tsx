@@ -51,9 +51,9 @@ export function Settings() {
                 <div className="flex flex-col gap-3 p-4">
                     <div>
                         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                            {t("system")}
+                            {t("dialogues")}
                         </h3>
-                        <SystemControls />
+                        <DialoguesControls />
                     </div>
 
                     <div>
@@ -62,9 +62,9 @@ export function Settings() {
 
                     <div>
                         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                            {t("dialogues")}
+                            {t("system")}
                         </h3>
-                        <DialoguesControls />
+                        <SystemControls />
                     </div>
 
                     {isInGame && <ReturnMainMenuButton />}
