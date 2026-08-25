@@ -1,6 +1,5 @@
 import {
     deleteRowFromIndexDB,
-    getLastRowFromIndexDB,
     getListFromIndexDB,
     getRowFromIndexDB,
     INDEXED_DB_SAVE_TABLE,
@@ -13,41 +12,63 @@ const SAVE_FILE_EXTENSION = "json";
 const AUTO_EXIT_SAVE_LOCAL_STORAGE_KEY = "auto_exit_save";
 
 /**
- * Quick saves live in a fixed, reserved range of negative ids (`-2`, `-3`, ...) so they
- * never collide with the auto-incrementing ids used by manual saves (`0`, `1`, ...) or
- * with the `-1` id reserved for the "auto exit save" (see {@link getLastSaveFromIndexDB}).
+ * The single quick-save slot's id. It's a fixed negative id so it never collides with
+ * the ids used by manual saves (`0`-`{@link MANUAL_SAVE_SLOTS} - 1`) or with the `-1` id
+ * reserved for the "auto exit save" (see {@link getLastSaveFromIndexDB}).
  */
-const QUICK_SAVE_ID_START = -2;
-/** Number of quick-save slots. */
-const QUICK_SAVE_SLOTS = 6;
+export const QUICK_SAVE_ID = -2;
 
-function getQuickSaveId(slotIndex: number): number {
-    return QUICK_SAVE_ID_START - slotIndex;
-}
+/**
+ * Number of manual save slots. Kept small on purpose: slots behave like bookmarks
+ * rather than a save library, and since the canvas isn't captured into a thumbnail
+ * there's no benefit to a large, paginated list.
+ */
+export const MANUAL_SAVE_SLOTS = 5;
 
-export function getQuickSaveIds(): number[] {
-    return Array.from({ length: QUICK_SAVE_SLOTS }, (_, index) => getQuickSaveId(index));
+/** The ids of the manual save slots, `0` to `{@link MANUAL_SAVE_SLOTS} - 1`. */
+export function getManualSaveIds(): number[] {
+    return Array.from({ length: MANUAL_SAVE_SLOTS }, (_, index) => index);
 }
 
 export function isQuickSaveId(id: number): boolean {
-    return id <= QUICK_SAVE_ID_START;
+    return id === QUICK_SAVE_ID;
 }
 
-/** 1-based slot number for a quick-save id, for display purposes. */
-export function getQuickSaveSlotNumber(id: number): number {
-    return QUICK_SAVE_ID_START - id + 1;
-}
-
-/** Human-readable label for a save slot, e.g. "File 01" or "Quick Save 2". */
+/** Human-readable label for a save slot, e.g. "File 01" or "Quick Save". */
 export function getSaveSlotLabel(id: number, t: (key: string) => string): string {
     if (isQuickSaveId(id)) {
-        return `${t("quick_save")} ${getQuickSaveSlotNumber(id)}`;
+        return t("quick_save");
     }
     return `${t("save_slot")} ${String(id + 1).padStart(2, "0")}`;
 }
 
-export function createGameSave(options?: {  name?: string }): GameSaveData {
-    const {  name = "" } = options || {};
+/** Number of trailing characters of the last dialogue line shown as a save's excerpt. */
+const EXCERPT_LENGTH = 80;
+
+/**
+ * The (untranslated) text of the most recent dialogue in a save's history, if any -
+ * resolve it with `t()` (using the "narration" namespace) before display.
+ */
+export function getLastDialogueRawText(
+    state: GameSaveData["saveData"],
+): string | string[] | undefined {
+    const steps = state.historyData.stepsHistory;
+    for (let index = steps.length - 1; index >= 0; index--) {
+        const text = steps[index].dialogue?.text;
+        if (text) {
+            return text;
+        }
+    }
+    return undefined;
+}
+
+/** Truncates `text` to its last {@link EXCERPT_LENGTH} characters, prefixed with an ellipsis when cut. */
+export function getExcerpt(text: string): string {
+    return text.length > EXCERPT_LENGTH ? `…${text.slice(-EXCERPT_LENGTH)}` : text;
+}
+
+export function createGameSave(options?: { name?: string }): GameSaveData {
+    const { name = "" } = options || {};
     return {
         saveData: Game.exportGameState(),
         gameVersion: __APP_VERSION__,
@@ -60,53 +81,19 @@ export async function loadSave(saveData: GameSaveData) {
     await Game.restoreGameState(saveData.saveData);
 }
 
+/** Saves into the given slot id (a manual slot from {@link getManualSaveIds} or {@link QUICK_SAVE_ID}), overwriting whatever was there before. */
 export async function saveGameToIndexDB(
-    info: Partial<GameSaveData> & { id?: number } = {},
+    info: Partial<GameSaveData> & { id: number },
     data = createGameSave(),
 ): Promise<GameSaveData & { id: number }> {
-    const {  ...rest } = info;
-    const item = {
-        ...data,
-        ...rest,
-    };
-    if (item.id === undefined) {
-        const lastSave = await getLastRowFromIndexDB<GameSaveData & { id: number }>(
-            INDEXED_DB_SAVE_TABLE,
-        );
-        if (lastSave) {
-            item.id = lastSave.id + 1;
-        } else {
-            item.id = 0;
-        }
-    }
+    const item = { ...data, ...info } as GameSaveData & { id: number };
     await putRowIntoIndexDB(INDEXED_DB_SAVE_TABLE, item);
-    if (item.id) {
-        return item as GameSaveData & { id: number };
-    }
-    return (await getLastSaveFromIndexDB()) as GameSaveData & { id: number };
+    return item;
 }
 
-/**
- * Saves into the dedicated quick-save slots (see {@link getQuickSaveIds}). Fills the first
- * empty slot; once all slots are full, overwrites the least recently saved one.
- */
+/** Saves into the single quick-save slot (see {@link QUICK_SAVE_ID}), always overwriting whatever was there before. */
 export async function quickSaveGameToIndexDB(): Promise<GameSaveData & { id: number }> {
-    const ids = getQuickSaveIds();
-    const slots = await Promise.all(ids.map((id) => getSaveFromIndexDB(id)));
-
-    let targetIndex = slots.findIndex((slot) => !slot);
-    if (targetIndex === -1) {
-        targetIndex = 0;
-        for (let index = 1; index < slots.length; index++) {
-            const slot = slots[index];
-            const oldest = slots[targetIndex];
-            if (slot && oldest && new Date(slot.date) < new Date(oldest.date)) {
-                targetIndex = index;
-            }
-        }
-    }
-
-    return saveGameToIndexDB({ id: ids[targetIndex] });
+    return saveGameToIndexDB({ id: QUICK_SAVE_ID });
 }
 
 export async function getSaveFromIndexDB(

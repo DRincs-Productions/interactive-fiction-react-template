@@ -1,14 +1,13 @@
 import { GameSaveMenu } from "@/components/menus/save-menu";
 import { Button } from "@/components/ui/button";
-import { Dialog, FullscreenDialogContent } from "@/components/ui/fullscreen-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSearchParamState, useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { downloadGameSave, loadGameSaveFromFile } from "@/lib/utils/save-utility";
 import type { FileRouteTypes } from "@/routeTree.gen";
 import { useLocation } from "@tanstack/react-router";
-import { Download, FolderOpen, Zap } from "lucide-react";
-import { useState } from "react";
+import { Download, FolderOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -16,7 +15,6 @@ export function SaveLoadSettingsPage() {
     const { t } = useTranslation(["ui"]);
     const gameProps = useGameProps();
     const location = useLocation();
-    const [showQuickSaves, setShowQuickSaves] = useState(false);
 
     const toolbar = (
         <TooltipProvider>
@@ -24,22 +22,8 @@ export function SaveLoadSettingsPage() {
                 <Tooltip>
                     <TooltipTrigger render={<span />}>
                         <Button
-                            variant={showQuickSaves ? "secondary" : "ghost"}
-                            size="icon-lg"
-                            onClick={() => setShowQuickSaves((v) => !v)}
-                            aria-pressed={showQuickSaves}
-                            aria-label={t("quick_saves")}
-                        >
-                            <Zap className="size-6" />
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>{t("quick_saves")}</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                    <TooltipTrigger render={<span />}>
-                        <Button
                             variant="ghost"
-                            size="icon-lg"
+                            size="icon-sm"
                             onClick={() =>
                                 loadGameSaveFromFile((err) => {
                                     if (err) {
@@ -52,7 +36,7 @@ export function SaveLoadSettingsPage() {
                             }
                             aria-label={t("load_from_file")}
                         >
-                            <FolderOpen className="size-6" />
+                            <FolderOpen />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>{t("load_from_file")}</TooltipContent>
@@ -61,12 +45,12 @@ export function SaveLoadSettingsPage() {
                     <TooltipTrigger render={<span />}>
                         <Button
                             variant="ghost"
-                            size="icon-lg"
+                            size="icon-sm"
                             onClick={() => downloadGameSave()}
                             disabled={(location.pathname as FileRouteTypes["fullPaths"]) === "/"}
                             aria-label={t("save_to_file")}
                         >
-                            <Download className="size-6" />
+                            <Download />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>{t("save_to_file")}</TooltipContent>
@@ -76,9 +60,9 @@ export function SaveLoadSettingsPage() {
     );
 
     return (
-        <div className="flex min-h-0 flex-1 flex-col">
-            <div className="border-b p-4">{toolbar}</div>
-            <GameSaveMenu quickSaves={showQuickSaves} />
+        <div className="flex min-h-0 flex-1 flex-col gap-2">
+            <div className="flex justify-end">{toolbar}</div>
+            <GameSaveMenu />
         </div>
     );
 }
@@ -90,11 +74,14 @@ export function SaveLoadDialog() {
 
     return (
         <Dialog open={open ?? false} onOpenChange={(isOpen) => setOpen(isOpen || undefined)}>
-            <FullscreenDialogContent title={`${t("save")}/${t("load")}`} centered>
+            <DialogContent className="flex max-h-[85vh] w-full flex-col gap-3 sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>{`${t("save")}/${t("load")}`}</DialogTitle>
+                </DialogHeader>
                 {/* Only mount while actually open - avoids querying the save list in the
                 background for a dialog nobody is looking at. */}
                 {open && <SaveLoadSettingsPage />}
-            </FullscreenDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

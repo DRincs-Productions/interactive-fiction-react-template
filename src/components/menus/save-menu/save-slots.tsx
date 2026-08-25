@@ -1,122 +1,139 @@
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
-import { Image } from "@/components/ui/image";
+import {
+    Item,
+    ItemActions,
+    ItemContent,
+    ItemDescription,
+    ItemMedia,
+    ItemTitle,
+} from "@/components/ui/item";
 import { Skeleton } from "@/components/ui/skeleton";
-import { overlayTextShadowClass } from "@/constants";
+import { readChapterFromSave } from "@/lib/utils/chapter-utility";
 import { useSaveActions } from "@/lib/hooks/save-hooks";
 import { useQuerySaves } from "@/lib/query/save-query";
-import { cn } from "@/lib/utils";
-import { downloadGameSave, getSaveSlotLabel } from "@/lib/utils/save-utility";
+import {
+    downloadGameSave,
+    getExcerpt,
+    getLastDialogueRawText,
+    getSaveSlotLabel,
+    isQuickSaveId,
+} from "@/lib/utils/save-utility";
 import type { FileRouteTypes } from "@/routeTree.gen";
 import { useLocation } from "@tanstack/react-router";
-import { Download, Save, SquarePen, Trash2 } from "lucide-react";
+import { Bookmark, Download, Save, SquarePen, Trash2, Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-export function SaveSlot({ saveId }: { saveId: number }) {
+export function SaveSlot({
+    saveId,
+    isQuickSave = false,
+}: {
+    saveId: number;
+    isQuickSave?: boolean;
+}) {
     const { t } = useTranslation(["ui"]);
+    const { t: tNarration } = useTranslation(["narration"]);
     const { isLoading, data: saveData, isError } = useQuerySaves({ id: saveId });
     const location = useLocation();
     const { handleLoad, handleDelete, handleSave, handleOverwriteSave } = useSaveActions();
 
     const isHome = (location.pathname as FileRouteTypes["fullPaths"]) === "/";
+    const icon = isQuickSave ? <Zap className="size-4" /> : <Bookmark className="size-4" />;
 
     if (isLoading) {
         return (
-            <AspectRatio ratio={16 / 9} className="m-2 sm:m-4 md:m-2 lg:m-4 rounded">
-                <Skeleton className="absolute inset-0" />
-            </AspectRatio>
+            <Item size="sm">
+                <Skeleton className="h-9 w-full" />
+            </Item>
         );
     }
 
     if (!saveData || isError) {
         return (
-            <AspectRatio ratio={16 / 9} className="m-2 sm:m-4 md:m-2 lg:m-4 rounded">
-                <Button
-                    variant="ghost"
-                    className="absolute inset-0 h-full w-full ring-1 ring-border"
-                    onClick={() => handleSave(saveId)}
-                    disabled={isHome}
-                    aria-label={t("save")}
-                >
-                    <Save className="size-12 opacity-20" />
-                </Button>
-            </AspectRatio>
+            <Item
+                variant="outline"
+                size="sm"
+                render={<button type="button" disabled={isHome} />}
+                onClick={() => handleSave(saveId)}
+            >
+                <ItemMedia variant="icon" className="text-muted-foreground">
+                    {icon}
+                </ItemMedia>
+                <ItemContent>
+                    <ItemTitle className="text-muted-foreground">
+                        {isQuickSaveId(saveId) ? t("quick_save") : t("empty_save_slot")}
+                    </ItemTitle>
+                </ItemContent>
+                <ItemActions>
+                    <Save className="size-4 text-muted-foreground" />
+                </ItemActions>
+            </Item>
         );
     }
 
+    const rawDialogue = getLastDialogueRawText(saveData.saveData);
+    const dialogueText = Array.isArray(rawDialogue)
+        ? rawDialogue.map((line) => tNarration(line)).join(" ")
+        : rawDialogue
+          ? tNarration(rawDialogue)
+          : undefined;
+    const chapterName = readChapterFromSave(saveData.saveData).name;
+    const title =
+        saveData.name || (chapterName && tNarration(chapterName)) || getSaveSlotLabel(saveId, t);
+
     return (
-        <AspectRatio
-            ratio={16 / 9}
-            className="m-2 overflow-hidden sm:m-4 md:m-2 lg:m-4 rounded cursor-pointer"
+        <Item
+            variant="outline"
+            size="sm"
+            render={<button type="button" />}
             onClick={() => handleLoad({ ...saveData, id: saveId })}
         >
-            <Image
-                src={saveData.image}
-                layout="fullWidth"
-                alt={saveData.name}
-                className="absolute inset-0 size-full object-contain pointer-events-none select-none rounded-md"
-            />
-            {/* top-left metadata */}
-            <div className="absolute top-2.5 left-2.5 flex flex-col gap-0.5 pointer-events-none">
-                <span
-                    className={cn(
-                        "text-base font-semibold text-neutral-300",
-                        overlayTextShadowClass,
-                    )}
-                >
-                    {saveData.name}
-                </span>
-                <span className={cn("text-sm text-neutral-300", overlayTextShadowClass)}>
-                    {saveData.date.toLocaleDateString()}
-                </span>
-                <span className={cn("text-sm text-neutral-300", overlayTextShadowClass)}>
-                    {saveData.date.toLocaleTimeString()}
-                </span>
-                <span className={cn("text-sm text-neutral-300", overlayTextShadowClass)}>
-                    {getSaveSlotLabel(saveId, t)}
-                </span>
-            </div>
-            {/* top-right delete */}
-            <div className="absolute top-2.5 right-2.5">
-                <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(saveId);
-                    }}
-                    aria-label={t("delete")}
-                >
-                    <Trash2 className={overlayTextShadowClass} />
-                </Button>
-            </div>
-            {/* bottom-right actions */}
-            <div className="absolute bottom-2.5 right-2.5 flex flex-row gap-1">
+            <ItemMedia variant="icon">{icon}</ItemMedia>
+            <ItemContent>
+                <ItemTitle className="w-full justify-between">
+                    <span className="truncate">{title}</span>
+                    <span className="shrink-0 text-xs font-normal text-muted-foreground">
+                        {saveData.date.toLocaleDateString()} {saveData.date.toLocaleTimeString()}
+                    </span>
+                </ItemTitle>
+                {dialogueText && <ItemDescription>{getExcerpt(dialogueText)}</ItemDescription>}
+            </ItemContent>
+            <ItemActions>
                 <Button
                     variant="ghost"
-                    size="icon"
+                    size="icon-sm"
                     onClick={(e) => {
                         e.stopPropagation();
                         downloadGameSave(saveData);
                     }}
                     aria-label={t("save_to_file")}
                 >
-                    <Download className={overlayTextShadowClass} />
+                    <Download />
                 </Button>
                 {!isHome && (
                     <Button
                         variant="ghost"
-                        size="icon"
+                        size="icon-sm"
                         onClick={(e) => {
                             e.stopPropagation();
                             handleOverwriteSave(saveId, saveData.name);
                         }}
                         aria-label={t("save")}
                     >
-                        <SquarePen className={overlayTextShadowClass} />
+                        <SquarePen />
                     </Button>
                 )}
-            </div>
-        </AspectRatio>
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(saveId);
+                    }}
+                    aria-label={t("delete")}
+                >
+                    <Trash2 />
+                </Button>
+            </ItemActions>
+        </Item>
     );
 }
