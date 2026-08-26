@@ -1,4 +1,5 @@
 import packageJson from "@/../package.json";
+import { MainMenuBackground } from "@/components/backgrounds/texture-background";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -119,7 +120,8 @@ export function MainMenu() {
     }, []);
 
     return (
-        <div className="flex h-full w-full flex-1 flex-col items-center">
+        <div className="relative isolate flex h-full w-full flex-1 flex-col items-center">
+            <MainMenuBackground />
             {/* Settings – icon button in the top-right corner, intentionally left out of arrow-key menu navigation */}
             <div className="absolute top-3 right-3 z-20 sm:top-4 sm:right-4 md:top-6 md:right-6">
                 <Tooltip>
