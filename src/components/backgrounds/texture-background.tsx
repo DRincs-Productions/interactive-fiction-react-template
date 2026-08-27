@@ -52,7 +52,7 @@ export function NarrationBackground() {
         <NeuroNoise
             className="pointer-events-none absolute inset-0 -z-10 opacity-70"
             colorFront={colorBack}
-            colorMid="#47a6ff"
+            colorMid="#47a6ffa6"
             colorBack={colorBack}
             brightness={0.05}
             contrast={0.3}
