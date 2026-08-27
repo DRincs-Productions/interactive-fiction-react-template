@@ -1,4 +1,3 @@
-import { NarrationBackground } from "@/components/backgrounds/texture-background";
 import { DelayedAnimatedDots, NextStepLoadingDots } from "@/components/loading";
 import { markdownComponents } from "@/components/markdown-components";
 import { ChoiceMenu } from "@/components/menus/choice-menus";
@@ -67,8 +66,7 @@ export function NarrationBook() {
     }
 
     return (
-        <div className="relative isolate flex min-h-0 flex-1 flex-col">
-            <NarrationBackground />
+        <div className="flex min-h-0 flex-1 flex-col">
             <ScrollArea
                 ref={bookRef}
                 className="h-full"
