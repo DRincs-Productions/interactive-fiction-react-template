@@ -6,6 +6,7 @@ declare module "@drincs/pixi-vn/characters" {
         "mc": never;
         "gatekeeper": never;
         "steward": never;
+        "mara": never;
     }
 }
 declare module "@drincs/pixi-vn/narration" {
@@ -13,31 +14,38 @@ declare module "@drincs/pixi-vn/narration" {
         "second_part": never;
         "second_part_omen": never;
         "second_part_end": never;
+        "watchtower_reveal": never;
+        "watchtower_end_report": never;
+        "watchtower_end_mercy": never;
         "start": never;
         "start_memory": never;
         "start_hall": never;
         "notice_board": never;
         "start_hall_task": never;
+        "start_wait_morning": never;
     }
 }
 declare module "@drincs/pixi-vn/canvas" {
     interface PixivnBundleIds {
+        "images": never;
         "audio": never;
-        "/": never;
     }
     interface PixivnAssetAliasIds {
+        "images_keep_hall": never;
+        "keep_hall": never;
+        "images_watchtower": never;
+        "watchtower": never;
         "bgm_medieval_hall": never;
         "sfx_gate_creak": never;
         "sfx_rain_ambience": never;
         "sfx_torch_crackle": never;
-        "background_main_menu": never;
     }
 }
-export const characterIds = ["mc","gatekeeper","steward"] as const;
-export const characterIdsEnum = {"mc":"mc","gatekeeper":"gatekeeper","steward":"steward"} as const;
-export const labelIds = ["second_part","second_part_omen","second_part_end","start","start_memory","start_hall","notice_board","start_hall_task"] as const;
-export const labelIdsEnum = {"second_part":"second_part","second_part_omen":"second_part_omen","second_part_end":"second_part_end","start":"start","start_memory":"start_memory","start_hall":"start_hall","notice_board":"notice_board","start_hall_task":"start_hall_task"} as const;
-export const bundleIds = ["audio","/"] as const;
-export const bundleIdsEnum = {"audio":"audio","/":"/"} as const;
-export const assetAliasIds = ["bgm_medieval_hall","sfx_gate_creak","sfx_rain_ambience","sfx_torch_crackle","background_main_menu"] as const;
-export const assetAliasIdsEnum = {"bgm_medieval_hall":"bgm_medieval_hall","sfx_gate_creak":"sfx_gate_creak","sfx_rain_ambience":"sfx_rain_ambience","sfx_torch_crackle":"sfx_torch_crackle","background_main_menu":"background_main_menu"} as const;
+export const characterIds = ["mc","gatekeeper","steward","mara"] as const;
+export const characterIdsEnum = {"mc":"mc","gatekeeper":"gatekeeper","steward":"steward","mara":"mara"} as const;
+export const labelIds = ["second_part","second_part_omen","second_part_end","watchtower_reveal","watchtower_end_report","watchtower_end_mercy","start","start_memory","start_hall","notice_board","start_hall_task","start_wait_morning"] as const;
+export const labelIdsEnum = {"second_part":"second_part","second_part_omen":"second_part_omen","second_part_end":"second_part_end","watchtower_reveal":"watchtower_reveal","watchtower_end_report":"watchtower_end_report","watchtower_end_mercy":"watchtower_end_mercy","start":"start","start_memory":"start_memory","start_hall":"start_hall","notice_board":"notice_board","start_hall_task":"start_hall_task","start_wait_morning":"start_wait_morning"} as const;
+export const bundleIds = ["images","audio"] as const;
+export const bundleIdsEnum = {"images":"images","audio":"audio"} as const;
+export const assetAliasIds = ["images_keep_hall","keep_hall","images_watchtower","watchtower","bgm_medieval_hall","sfx_gate_creak","sfx_rain_ambience","sfx_torch_crackle"] as const;
+export const assetAliasIdsEnum = {"images_keep_hall":"images_keep_hall","keep_hall":"keep_hall","images_watchtower":"images_watchtower","watchtower":"watchtower","bgm_medieval_hall":"bgm_medieval_hall","sfx_gate_creak":"sfx_gate_creak","sfx_rain_ambience":"sfx_rain_ambience","sfx_torch_crackle":"sfx_torch_crackle"} as const;

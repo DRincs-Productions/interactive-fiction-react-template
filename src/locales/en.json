@@ -1,5 +1,8 @@
 {
-  "narration": {},
+  "narration": {
+    "chapter_the_keep": "Chapter One: The Keep",
+    "chapter_the_watchtower": "Chapter Two: The Watchtower"
+  },
   "ui": {
     "allert_error_occurred": "An error occurred, please report it to the developer",
     "attention": "Attention",

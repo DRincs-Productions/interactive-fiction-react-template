@@ -1,3 +1,39 @@
 {
-  "bundles": []
+  "bundles": [
+    {
+      "name": "images",
+      "assets": [
+        {
+          "alias": [
+            "images_keep_hall",
+            "keep_hall"
+          ],
+          "src": [
+            "images/keep_hall-za06jw@0.5x.png",
+            "images/keep_hall-ThDI5A@0.5x.webp",
+            "images/keep_hall-d_oo-A.png",
+            "images/keep_hall-71ae-A.webp"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "images_watchtower",
+            "watchtower"
+          ],
+          "src": [
+            "images/watchtower-WV2k7g@0.5x.png",
+            "images/watchtower-u6FO_Q.webp",
+            "images/watchtower-pay_HA.png",
+            "images/watchtower-aQqVrQ@0.5x.webp"
+          ],
+          "data": {
+            "tags": {}
+          }
+        }
+      ]
+    }
+  ]
 }

@@ -13,4 +13,8 @@ export const steward = new Character("steward", {
     name: "Osric",
 });
 
-RegisteredCharacters.add([mc, gatekeeper, steward]);
+export const mara = new Character("mara", {
+    name: "Mara",
+});
+
+RegisteredCharacters.add([mc, gatekeeper, steward, mara]);

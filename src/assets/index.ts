@@ -1,6 +1,5 @@
 import generatedManifestJson from "@/assets/manifest.gen.json";
 import { AUDIO_BUNDLE_NAME } from "@/constants";
-import type { FileRouteTypes } from "@/routeTree.gen";
 import type { AssetsManifest } from "@drincs/pixi-vn";
 
 /**
@@ -31,16 +30,6 @@ export const manifest: AssetsManifest = {
                 {
                     alias: "sfx_torch_crackle",
                     src: "https://pub-72ff059a2c6642fb9eab15df80fb3b45.r2.dev/interactive_fiction/audio/sfx_torch_crackle.wav",
-                },
-            ],
-        },
-        // screens
-        {
-            name: "/" as FileRouteTypes["fullPaths"],
-            assets: [
-                {
-                    alias: "background_main_menu",
-                    src: "https://pub-72ff059a2c6642fb9eab15df80fb3b45.r2.dev/main-menu.png",
                 },
             ],
         },
