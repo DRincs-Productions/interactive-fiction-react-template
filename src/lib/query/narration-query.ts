@@ -67,7 +67,7 @@ export function useQueryNarrationParagraphs() {
                         if (!dialogue) return undefined;
 
                         const text = Array.isArray(dialogue.text)
-                            ? dialogue.text.map((line) => t(line)).join(" ")
+                            ? dialogue.text.map((line) => t(line)).join("&nbsp;")
                             : t(dialogue.text);
 
                         const character = dialogue.character;
