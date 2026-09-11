@@ -8,7 +8,7 @@ import { useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { useQueryLastSave } from "@/lib/query/save-query";
 import { GameStatus } from "@/lib/stores/game-status-store";
-import { loadAutoExitSave, loadSave } from "@/lib/utils/save-utility";
+import { autoExit, save } from "@/lib/utils/save-utility";
 import { useHotkeys } from "@tanstack/react-hotkeys";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
@@ -229,7 +229,7 @@ export function ContinueMenuButton({
         if (!lastSave) return;
         setLoading(true);
         onLoadingChange?.(true);
-        (hasAutoExitSave ? loadAutoExitSave() : loadSave(lastSave))
+        (hasAutoExitSave ? autoExit.load() : save.restore(lastSave))
             .then(() => queryClient.invalidateQueries())
             .catch((e) => {
                 toast.error(t("fail_load"));

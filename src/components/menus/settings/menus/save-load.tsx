@@ -4,10 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSearchParamState, useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
-import { downloadGameSave, loadGameSaveFromFile } from "@/lib/utils/save-utility";
+import { save } from "@/lib/utils/save-utility";
 import type { FileRouteTypes } from "@/routeTree.gen";
 import { useLocation } from "@tanstack/react-router";
-import { Download, FolderOpen } from "lucide-react";
+import { Download, FolderOpen, Zap } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -15,6 +16,7 @@ export function SaveLoadSettingsPage() {
     const { t } = useTranslation(["ui"]);
     const gameProps = useGameProps();
     const location = useLocation();
+    const [showQuickSaves, setShowQuickSaves] = useState(false);
 
     const toolbar = (
         <TooltipProvider>
@@ -22,10 +24,24 @@ export function SaveLoadSettingsPage() {
                 <Tooltip>
                     <TooltipTrigger render={<span />}>
                         <Button
+                            variant={showQuickSaves ? "secondary" : "ghost"}
+                            size="icon-sm"
+                            onClick={() => setShowQuickSaves((v) => !v)}
+                            aria-pressed={showQuickSaves}
+                            aria-label={t("quick_saves")}
+                        >
+                            <Zap />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t("quick_saves")}</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                    <TooltipTrigger render={<span />}>
+                        <Button
                             variant="ghost"
                             size="icon-sm"
                             onClick={() =>
-                                loadGameSaveFromFile((err) => {
+                                save.loadFromFile((err) => {
                                     if (err) {
                                         toast.error(t("allert_error_occurred"));
                                         return;
@@ -46,7 +62,7 @@ export function SaveLoadSettingsPage() {
                         <Button
                             variant="ghost"
                             size="icon-sm"
-                            onClick={() => downloadGameSave()}
+                            onClick={() => save.download()}
                             disabled={(location.pathname as FileRouteTypes["fullPaths"]) === "/"}
                             aria-label={t("save_to_file")}
                         >
@@ -62,7 +78,7 @@ export function SaveLoadSettingsPage() {
     return (
         <div className="flex min-h-0 flex-1 flex-col gap-2">
             <div className="flex justify-end">{toolbar}</div>
-            <GameSaveMenu />
+            <GameSaveMenu quickSaves={showQuickSaves} />
         </div>
     );
 }

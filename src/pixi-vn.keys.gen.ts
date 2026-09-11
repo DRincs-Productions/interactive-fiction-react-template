@@ -33,6 +33,8 @@ declare module "@drincs/pixi-vn/canvas" {
     interface PixivnAssetAliasIds {
         "images_keep_hall": never;
         "keep_hall": never;
+        "images_main-menu": never;
+        "main-menu": never;
         "images_watchtower": never;
         "watchtower": never;
         "bgm_medieval_hall": never;
@@ -47,5 +49,5 @@ export const labelIds = ["second_part","second_part_omen","second_part_end","wat
 export const labelIdsEnum = {"second_part":"second_part","second_part_omen":"second_part_omen","second_part_end":"second_part_end","watchtower_reveal":"watchtower_reveal","watchtower_end_report":"watchtower_end_report","watchtower_end_mercy":"watchtower_end_mercy","start":"start","start_memory":"start_memory","start_hall":"start_hall","notice_board":"notice_board","start_hall_task":"start_hall_task","start_wait_morning":"start_wait_morning"} as const;
 export const bundleIds = ["images","audio"] as const;
 export const bundleIdsEnum = {"images":"images","audio":"audio"} as const;
-export const assetAliasIds = ["images_keep_hall","keep_hall","images_watchtower","watchtower","bgm_medieval_hall","sfx_gate_creak","sfx_rain_ambience","sfx_torch_crackle"] as const;
-export const assetAliasIdsEnum = {"images_keep_hall":"images_keep_hall","keep_hall":"keep_hall","images_watchtower":"images_watchtower","watchtower":"watchtower","bgm_medieval_hall":"bgm_medieval_hall","sfx_gate_creak":"sfx_gate_creak","sfx_rain_ambience":"sfx_rain_ambience","sfx_torch_crackle":"sfx_torch_crackle"} as const;
+export const assetAliasIds = ["images_keep_hall","keep_hall","images_main-menu","main-menu","images_watchtower","watchtower","bgm_medieval_hall","sfx_gate_creak","sfx_rain_ambience","sfx_torch_crackle"] as const;
+export const assetAliasIdsEnum = {"images_keep_hall":"images_keep_hall","keep_hall":"keep_hall","images_main-menu":"images_main-menu","main-menu":"main-menu","images_watchtower":"images_watchtower","watchtower":"watchtower","bgm_medieval_hall":"bgm_medieval_hall","sfx_gate_creak":"sfx_gate_creak","sfx_rain_ambience":"sfx_rain_ambience","sfx_torch_crackle":"sfx_torch_crackle"} as const;

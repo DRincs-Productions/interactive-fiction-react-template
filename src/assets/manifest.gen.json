@@ -9,10 +9,21 @@
             "keep_hall"
           ],
           "src": [
-            "images/keep_hall-za06jw@0.5x.png",
-            "images/keep_hall-ThDI5A@0.5x.webp",
-            "images/keep_hall-d_oo-A.png",
-            "images/keep_hall-71ae-A.webp"
+            "images/keep_hall-nUAlOw.webp",
+            "images/keep_hall-d_oo-A.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "images_main-menu",
+            "main-menu"
+          ],
+          "src": [
+            "images/main-menu-WkYN-A.webp",
+            "images/main-menu-TLChYQ.png"
           ],
           "data": {
             "tags": {}
@@ -24,10 +35,8 @@
             "watchtower"
           ],
           "src": [
-            "images/watchtower-WV2k7g@0.5x.png",
-            "images/watchtower-u6FO_Q.webp",
             "images/watchtower-pay_HA.png",
-            "images/watchtower-aQqVrQ@0.5x.webp"
+            "images/watchtower-H1qFNw.webp"
           ],
           "data": {
             "tags": {}

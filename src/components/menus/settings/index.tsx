@@ -6,10 +6,11 @@ import { useAlertDialog } from "@/components/providers/alert-dialog-provider";
 import { Button } from "@/components/ui/button";
 import { Dialog, FullscreenDialogContent } from "@/components/ui/fullscreen-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useQuit } from "@/lib/hooks/quit-hooks";
 import { useSearchParamState, useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { Game } from "@drincs/pixi-vn";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { LogOutIcon } from "lucide-react";
+import { LogOutIcon, PowerIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 function ReturnMainMenuButton() {
@@ -36,6 +37,20 @@ function ReturnMainMenuButton() {
         >
             <LogOutIcon />
             {t("return_main_menu")}
+        </Button>
+    );
+}
+
+function QuitButton() {
+    const { t } = useTranslation(["ui"]);
+    const { quit, canQuit } = useQuit();
+
+    if (!canQuit) return null;
+
+    return (
+        <Button variant="destructive" onClick={quit}>
+            <PowerIcon />
+            {t("quit")}
         </Button>
     );
 }
@@ -68,6 +83,7 @@ export function Settings() {
                     </div>
 
                     {isInGame && <ReturnMainMenuButton />}
+                    <QuitButton />
                 </div>
             </ScrollArea>
         </div>

@@ -11,13 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { readChapterFromSave } from "@/lib/utils/chapter-utility";
 import { useSaveActions } from "@/lib/hooks/save-hooks";
 import { useQuerySaves } from "@/lib/query/save-query";
-import {
-    downloadGameSave,
-    getExcerpt,
-    getLastDialogueRawText,
-    getSaveSlotLabel,
-    isQuickSaveId,
-} from "@/lib/utils/save-utility";
+import { getExcerpt, getLastDialogueRawText, quickSave, save } from "@/lib/utils/save-utility";
 import type { FileRouteTypes } from "@/routeTree.gen";
 import { useLocation } from "@tanstack/react-router";
 import { Bookmark, Download, Save, SquarePen, Trash2, Zap } from "lucide-react";
@@ -60,7 +54,7 @@ export function SaveSlot({
                 </ItemMedia>
                 <ItemContent>
                     <ItemTitle className="text-muted-foreground">
-                        {isQuickSaveId(saveId) ? t("quick_save") : t("empty_save_slot")}
+                        {quickSave.isId(saveId) ? t("quick_save") : t("empty_save_slot")}
                     </ItemTitle>
                 </ItemContent>
                 <ItemActions>
@@ -78,7 +72,7 @@ export function SaveSlot({
           : undefined;
     const chapterName = readChapterFromSave(saveData.saveData).name;
     const title =
-        saveData.name || (chapterName && tNarration(chapterName)) || getSaveSlotLabel(saveId, t);
+        saveData.name || (chapterName && tNarration(chapterName)) || save.getSlotLabel(saveId, t);
 
     return (
         <Item
@@ -103,7 +97,7 @@ export function SaveSlot({
                     size="icon-sm"
                     onClick={(e) => {
                         e.stopPropagation();
-                        downloadGameSave(saveData);
+                        save.download(saveData);
                     }}
                     aria-label={t("save_to_file")}
                 >
