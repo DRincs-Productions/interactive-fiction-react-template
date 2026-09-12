@@ -25,7 +25,7 @@ export function AnimatedDots() {
     );
 }
 
-export function DelayedAnimatedDots({ delay = 100 }: { delay?: number }) {
+export function DelayedAnimatedDots({ delay = 300 }: { delay?: number }) {
     const [visible, setVisible] = useState(false);
     useEffect(() => {
         const id = setTimeout(() => setVisible(true), delay);
