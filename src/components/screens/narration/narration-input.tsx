@@ -5,7 +5,6 @@ import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { useQueryInputValue } from "@/lib/query/narration-query";
 import { GameStatus } from "@/lib/stores/game-status-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
-import { narration } from "@drincs/pixi-vn";
 import { useDebouncedValue } from "@tanstack/react-pacer";
 import { useSelector } from "@tanstack/react-store";
 import { useCallback, useEffect, useState } from "react";
@@ -28,6 +27,7 @@ export function NarrationInput() {
     const visible = readyToShow && sustainedReady;
     const [tempValue, setTempValue] = useState<string | number>();
     const { goNext } = useNarrationFunctions();
+    const { submitInputValue: submitNarrationInputValue } = useNarrationFunctions();
     const { t } = useTranslation(["ui"]);
 
     useEffect(() => {
@@ -40,10 +40,10 @@ export function NarrationInput() {
         if (!canConfirm) {
             return;
         }
-        narration.input.value = tempValue || currentValue;
+        submitNarrationInputValue(tempValue || currentValue);
         setTempValue(undefined);
         goNext();
-    }, [canConfirm, currentValue, goNext, tempValue]);
+    }, [canConfirm, currentValue, submitNarrationInputValue, tempValue]);
 
     if (!visible) {
         return null;

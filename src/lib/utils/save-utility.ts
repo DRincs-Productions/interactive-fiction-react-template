@@ -3,7 +3,6 @@ import { roves } from "@/lib/utils/roves-utility";
 import type GameSaveData from "@/models/GameSaveData";
 import { canvas, Game } from "@drincs/pixi-vn";
 import { isAvailable as isRoves } from "@drincs/roves-api/core";
-import { saves as rovesSaves } from "@drincs/roves-api/saves";
 
 const SAVE_FILE_EXTENSION = "json";
 
@@ -33,10 +32,10 @@ export function getExcerpt(text: string): string {
 }
 
 /** Snapshots the current game state into a {@link GameSaveData}, ready to pass to {@link save}. */
-function create(options?: { image?: string; name?: string }): GameSaveData {
+async function create(options?: { image?: string; name?: string }): Promise<GameSaveData> {
     const { image, name = "" } = options || {};
     return {
-        saveData: Game.exportGameState(),
+        saveData: await Game.exportGameState(),
         gameVersion: __APP_VERSION__,
         date: new Date(),
         name: name,
@@ -47,17 +46,18 @@ function create(options?: { image?: string; name?: string }): GameSaveData {
 /** Persists a save under `info.id`, to whichever backend (Roves or IndexedDB) is active. */
 export async function save(
     info: Partial<GameSaveData> & { id: number },
-    data = create(),
+    data?: GameSaveData,
 ): Promise<GameSaveData & { id: number }> {
+    const saveData = data ?? (await create());
     const { image = await canvas.extractImage(), ...rest } = info;
     const item = {
-        ...data,
+        ...saveData,
         image: image,
         ...rest,
     };
     const usingRoves = isRoves();
     if (usingRoves) {
-        await rovesSaves.writeText(item.id, item);
+        await roves.writeSave(item.id, item);
         return item as GameSaveData & { id: number };
     }
 
@@ -102,13 +102,14 @@ export namespace save {
     /** Deletes the save at `id`. */
     export async function remove(id: number): Promise<unknown> {
         if (isRoves()) {
-            return await rovesSaves.delete(id);
+            return await roves.deleteSave(id);
         }
         return await gameDB.deleteRow(INDEXED_DB_SAVE_TABLE, id);
     }
 
     /** Downloads `data` (or a fresh snapshot of the current game) as a `.json` file. */
-    export function download(data: GameSaveData = create()) {
+    export async function download(data?: GameSaveData) {
+        data ??= await create();
         const jsonString = JSON.stringify(data);
         // download the save data as a JSON file
         const blob = new Blob([jsonString], { type: "application/json" });
@@ -165,7 +166,11 @@ export namespace save {
 /**
  * Quick saves live in a fixed, reserved range of negative ids (`-2`, `-3`, ...) so they never
  * collide with the auto-incrementing ids used by manual saves (`0`, `1`, ...) or with the `-1`
- * id reserved for the auto-exit save (see {@link autoExit}).
+ * id reserved for the auto-exit save (see {@link autoExit}). Only IndexedDB ever sees these
+ * raw negative ids directly -- the roves-backed file storage maps them to a
+ * `quicksave-<N>.save` file name instead of a bare `-2.save`/`-3.save` (see
+ * `roves-utility.ts`'s `toRovesKey`), so this id scheme's own internals stay simple without
+ * leaking an ugly file name to anyone browsing the saves folder.
  */
 export async function quickSave(): Promise<GameSaveData & { id: number }> {
     const ids = quickSave.getIds();
@@ -221,7 +226,7 @@ export namespace autoExit {
 
     /** Snapshots the current game state into localStorage, e.g. before the tab closes/hides. */
     export async function add() {
-        const data = create();
+        const data = await create();
         const jsonString = JSON.stringify(data);
         if (jsonString) {
             localStorage.setItem(AUTO_EXIT_SAVE_LOCAL_STORAGE_KEY, jsonString);

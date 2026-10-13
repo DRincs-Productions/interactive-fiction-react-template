@@ -14,6 +14,7 @@ import {
     type LabelAbstract,
     type LabelIdType,
     type StepLabelPropsType,
+    type StorageElementType,
     type StoredIndexedChoiceInterface,
 } from "@drincs/pixi-vn";
 import { useDebouncer } from "@tanstack/react-pacer";
@@ -175,6 +176,15 @@ export function useNarrationFunctions() {
         [gameProps, goNext, hasOpenMenu],
     );
 
+    const submitInputValue = useCallback(
+        (value: StorageElementType) => {
+            if (hasOpenMenu) return;
+            narration.input.value = value;
+            gameProps.invalidateInterfaceData();
+        },
+        [gameProps, hasOpenMenu],
+    );
+
     return {
         goNext,
         goBack,
@@ -182,6 +192,7 @@ export function useNarrationFunctions() {
         startNewGame,
         jump,
         call,
+        submitInputValue,
     };
 }
 
