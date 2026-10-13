@@ -43,7 +43,7 @@ export function NarrationInput() {
         submitNarrationInputValue(tempValue || currentValue);
         setTempValue(undefined);
         goNext();
-    }, [canConfirm, currentValue, submitNarrationInputValue, tempValue]);
+    }, [canConfirm, currentValue, submitNarrationInputValue, tempValue, goNext]);
 
     if (!visible) {
         return null;
