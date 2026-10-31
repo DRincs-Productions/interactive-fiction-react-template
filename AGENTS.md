@@ -49,8 +49,16 @@ The `.vscode/` directory contains formatting settings, recommended extensions, t
 
 - Every screen is a **TanStack Router** route in `src/routes/`.
 - For UI made of elements that are not drawings coming from media (text, buttons, layouts, menus, dialogs, forms), always use **React** (with the existing shadcn/ui components when suitable).
-- For images (assets), use **PixiJS** (`pixi.js`) directly. Do not use Pixi’VN for UI: Pixi’VN is for the narrative canvas, while UI rendering with PixiJS must go through `pixi.js` itself.
+- The narration screen is a **React book**, not a Pixi’VN canvas scene. Render prose and inline illustrations with the existing React Markdown components. Use Pixi’VN’s canvas only if a game intentionally adds a separate canvas-based scene; do not use it to lay out the standard book UI.
+- For images embedded in narration, use Markdown image syntax and the existing `MarkdownImage` renderer. It supports registered Pixi’VN asset aliases and ordinary image URLs. For other custom image UI, prefer existing React components; if PixiJS is used directly, add `pixi.js` as a direct dependency before importing it.
 - If `pixi.js` is used directly and is not yet a direct dependency of the project, add it to `package.json` first, before writing code that imports it.
+
+## Interactive fiction conventions
+
+- The intended reading experience is book-like: past paragraphs remain on the page and the latest paragraph is revealed with the typewriter effect. Keep story text and its presentation in React; use Pixi’VN for narrative state, labels, choices, history, and saves.
+- `src/components/markdown-components.tsx` defines the custom `MarkdownImage` and `MarkdownLink` renderers used by the narration book. Internal links whose target is a registered label navigate to that label with `jump`; external URLs remain ordinary links. See [`docs/markdown-story-links.md`](docs/markdown-story-links.md) before changing these behaviors.
+- To require the player to follow a story link before continuing, use `requireLinkClickToContinue()` from `src/lib/utils/continue-lock-utility.ts`. The link renderer clears the lock when it navigates.
+- `src/lib/utils/chapter-utility.ts` stores the current chapter name and counter in Pixi’VN storage. Pass a translation key to `setChapter()`, not already-translated text. The save/load menu has one quick-save slot and five manual slots; each row can show the chapter, date/time, and a dialogue excerpt. See [`docs/chapters-and-saves.md`](docs/chapters-and-saves.md) before changing chapter or save-slot behavior.
 
 ## Verification and tools
 
