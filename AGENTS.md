@@ -1,6 +1,6 @@
 # Project instructions
 
-This repository is a template for a visual novel built with **Pixi’VN** and **React**. These instructions are intentionally general and can be used as they are; developers may adapt them to their game whenever useful.
+This repository is a template for **interactive fiction** built with **Pixi’VN** and **React**. Its main goal is to make the player feel like they are reading a book: narration flows as paragraphs in a scrollable page, with optional illustrations and interactive links. These instructions are intentionally general and can be adapted to a specific game whenever useful.
 
 ## Engine
 
