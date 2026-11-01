@@ -1,6 +1,6 @@
 # Project instructions
 
-This repository is a template for a visual novel built with **Pixi’VN** and **React**. These instructions are intentionally general and can be used as they are; developers may adapt them to their game whenever useful.
+This repository is a template for **interactive fiction** built with **Pixi’VN** and **React**. Its main goal is to make the player feel like they are reading a book: narration flows as paragraphs in a scrollable page, with optional illustrations and interactive links. These instructions are intentionally general and can be adapted to a specific game whenever useful.
 
 ## Engine
 
@@ -56,8 +56,16 @@ The `.vscode/` directory contains formatting settings, recommended extensions, t
 
 - Every screen is a **TanStack Router** route in `src/routes/`.
 - For UI made of elements that are not drawings coming from media (text, buttons, layouts, menus, dialogs, forms), always use **React** (with the existing shadcn/ui components when suitable).
-- For images (assets), use **PixiJS** (`pixi.js`) directly. Do not use Pixi’VN for UI: Pixi’VN is for the narrative canvas, while UI rendering with PixiJS must go through `pixi.js` itself.
+- The narration screen is a **React book**, not a Pixi’VN canvas scene. Render prose and inline illustrations with the existing React Markdown components. Use Pixi’VN’s canvas only if a game intentionally adds a separate canvas-based scene; do not use it to lay out the standard book UI.
+- For images embedded in narration, use Markdown image syntax and the existing `MarkdownImage` renderer. It supports registered Pixi’VN asset aliases and ordinary image URLs. For other custom image UI, prefer existing React components; if PixiJS is used directly, add `pixi.js` as a direct dependency before importing it.
 - If `pixi.js` is used directly and is not yet a direct dependency of the project, add it to `package.json` first, before writing code that imports it.
+
+## Interactive fiction conventions
+
+- The intended reading experience is book-like: past paragraphs remain on the page and the latest paragraph is revealed with the typewriter effect. Keep story text and its presentation in React; use Pixi’VN for narrative state, labels, choices, history, and saves.
+- `src/components/markdown-components.tsx` defines the custom `MarkdownImage` and `MarkdownLink` renderers used by the narration book. Internal links whose target is a registered label navigate to that label with `jump`; external URLs remain ordinary links. See [`docs/markdown-story-links.md`](docs/markdown-story-links.md) before changing these behaviors.
+- To require the player to follow a story link before continuing, use `requireLinkClickToContinue()` from `src/lib/utils/continue-lock-utility.ts`. The link renderer clears the lock when it navigates.
+- `src/lib/utils/chapter-utility.ts` stores the current chapter name and counter in Pixi’VN storage. Pass a translation key to `setChapter()`, not already-translated text. The save/load menu has one quick-save slot and five manual slots; each row can show the chapter, date/time, and a dialogue excerpt. See [`docs/chapters-and-saves.md`](docs/chapters-and-saves.md) before changing chapter or save-slot behavior.
 
 ## Verification and tools
 
@@ -90,3 +98,12 @@ The packages produced by `release.yml` are **not signed**: Android is a debug `.
 - **Desktop (Windows/macOS)**: `roves-action` does not sign them. Sign the files afterwards with your own certificates (Windows code-signing certificate; Apple Developer ID plus notarization for macOS), or accept the OS security warnings.
 
 Never commit keystores, certificates, passwords, or provisioning profiles: use GitHub secrets only. See the `roves-action` inputs in the [Roves documentation](https://roves.pixi-vn.com/docs/action) for the up-to-date list.
+
+## Ink book commands
+
+- `# vignette <assetAlias> "<alt text>"` displays an illustration through the existing MarkdownImage renderer. Use a registered asset alias, not a canvas command.
+- `# link <labelId> "<text>" [required]` displays an internal MarkdownLink. `required` blocks continue until a story link is followed. The target must be a registered label or Ink knot; external URLs should use ordinary Markdown.
+- Keep the base `narration` section enabled: these commands chain to `pause` so the player can read before continuing.
+- Put each command on its own narrative step: each sets the current dialogue. Captions are literal text; localize authored variants alongside the story. Ordinary Markdown inside Ink prose remains supported.
+- Register these commands in `src/content/ink/hashtag-commands.ts`. Keep the existing TypeScript sample story until it is deliberately migrated; do not register an Ink knot with the same ID as a TypeScript label.
+- `addBaseHashtagCommands` supports independent `sections.canvas`, `sections.sound`, `sections.narration`, and `sections.assets` toggles, all defaulting to true. Leave sections enabled unless intentionally changing the supported authoring vocabulary.

@@ -78,4 +78,39 @@ export namespace TextDisplaySettings {
     export function resetForNext() {
         store.setState((state) => ({ ...state, forceComplete: false }));
     }
+
+    /**
+     * Resolves once the typewriter has finished animating the paragraph it is about to
+     * (or already started to) show. Used to hold off revealing a batch of further-advanced
+     * steps until the just-started animation has actually played, instead of cutting it off.
+     *
+     * If the animation hasn't started within `startTimeoutMs` (e.g. the paragraph had no
+     * text to animate), resolves anyway so callers never hang.
+     */
+    export function waitUntilIdle(startTimeoutMs = 300): Promise<void> {
+        return new Promise((resolve) => {
+            let hasStarted = store.state.inProgress;
+            let startTimeout: ReturnType<typeof setTimeout> | undefined;
+
+            const finish = () => {
+                if (startTimeout !== undefined) clearTimeout(startTimeout);
+                subscription.unsubscribe();
+                resolve();
+            };
+
+            const subscription = store.subscribe((state) => {
+                if (state.inProgress) {
+                    hasStarted = true;
+                    return;
+                }
+                if (hasStarted) finish();
+            });
+
+            if (!hasStarted) {
+                startTimeout = setTimeout(() => {
+                    if (!hasStarted) finish();
+                }, startTimeoutMs);
+            }
+        });
+    }
 }

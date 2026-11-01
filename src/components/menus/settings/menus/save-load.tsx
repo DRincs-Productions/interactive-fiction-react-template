@@ -1,6 +1,8 @@
 import { GameSaveMenu } from "@/components/menus/save-menu";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useSearchParamState, useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { save } from "@/lib/utils/save-utility";
 import type { FileRouteTypes } from "@/routeTree.gen";
@@ -23,12 +25,12 @@ export function SaveLoadSettingsPage() {
                     <TooltipTrigger render={<span />}>
                         <Button
                             variant={showQuickSaves ? "secondary" : "ghost"}
-                            size="icon-lg"
+                            size="icon-sm"
                             onClick={() => setShowQuickSaves((v) => !v)}
                             aria-pressed={showQuickSaves}
                             aria-label={t("quick_saves")}
                         >
-                            <Zap className="size-6" />
+                            <Zap />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>{t("quick_saves")}</TooltipContent>
@@ -37,7 +39,7 @@ export function SaveLoadSettingsPage() {
                     <TooltipTrigger render={<span />}>
                         <Button
                             variant="ghost"
-                            size="icon-lg"
+                            size="icon-sm"
                             onClick={() =>
                                 save.loadFromFile((err) => {
                                     if (err) {
@@ -50,7 +52,7 @@ export function SaveLoadSettingsPage() {
                             }
                             aria-label={t("load_from_file")}
                         >
-                            <FolderOpen className="size-6" />
+                            <FolderOpen />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>{t("load_from_file")}</TooltipContent>
@@ -59,12 +61,12 @@ export function SaveLoadSettingsPage() {
                     <TooltipTrigger render={<span />}>
                         <Button
                             variant="ghost"
-                            size="icon-lg"
+                            size="icon-sm"
                             onClick={() => save.download()}
                             disabled={(location.pathname as FileRouteTypes["fullPaths"]) === "/"}
                             aria-label={t("save_to_file")}
                         >
-                            <Download className="size-6" />
+                            <Download />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>{t("save_to_file")}</TooltipContent>
@@ -74,9 +76,28 @@ export function SaveLoadSettingsPage() {
     );
 
     return (
-        <div className="flex min-h-0 flex-1 flex-col">
-            <div className="border-b p-4">{toolbar}</div>
+        <div className="flex min-h-0 flex-1 flex-col gap-2">
+            <div className="flex justify-end">{toolbar}</div>
             <GameSaveMenu quickSaves={showQuickSaves} />
         </div>
+    );
+}
+
+export function SaveLoadDialog() {
+    const open = useSearchParamState<boolean>("saves");
+    const setOpen = useSetSearchParamState<boolean>("saves");
+    const { t } = useTranslation(["ui"]);
+
+    return (
+        <Dialog open={open ?? false} onOpenChange={(isOpen) => setOpen(isOpen || undefined)}>
+            <DialogContent className="flex max-h-[85vh] w-full flex-col gap-3 sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>{`${t("save")}/${t("load")}`}</DialogTitle>
+                </DialogHeader>
+                {/* Only mount while actually open - avoids querying the save list in the
+                background for a dialog nobody is looking at. */}
+                {open && <SaveLoadSettingsPage />}
+            </DialogContent>
+        </Dialog>
     );
 }

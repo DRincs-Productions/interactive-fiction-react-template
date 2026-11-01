@@ -5,12 +5,38 @@
       "assets": [
         {
           "alias": [
+            "images_keep_hall",
+            "keep_hall"
+          ],
+          "src": [
+            "images/keep_hall-nUAlOw.webp",
+            "images/keep_hall-d_oo-A.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
             "images_main-menu",
             "main-menu"
           ],
           "src": [
             "images/main-menu-QVRZMw.webp",
             "images/main-menu-7bLsRQ.jpg"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "images_watchtower",
+            "watchtower"
+          ],
+          "src": [
+            "images/watchtower-H1qFNw.webp",
+            "images/watchtower-gvFGiQ.png"
           ],
           "data": {
             "tags": {}

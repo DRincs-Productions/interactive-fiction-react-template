@@ -2,16 +2,17 @@ import { SKIP_DELAY } from "@/constants";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { AutoSettings } from "@/lib/stores/auto-settings-store";
 import { GameStatus } from "@/lib/stores/game-status-store";
+import { PendingLabelAction } from "@/lib/stores/pending-label-action-store";
 import { SearchParams } from "@/lib/stores/search-param-store";
 import { SkipSettings } from "@/lib/stores/skip-settings-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
-import { hasScrollableParent, isScrollableElement } from "@/lib/utils/scroll-utils";
+import { clearLinkContinueLock, isContinueLockedByLink } from "@/lib/utils/continue-lock-utility";
 import {
     Game,
-    type LabelAbstract,
-    type LabelIdType,
     narration,
     stepHistory,
+    type LabelAbstract,
+    type LabelIdType,
     type StepLabelPropsType,
     type StorageElementType,
     type StoredIndexedChoiceInterface,
@@ -41,24 +42,58 @@ export function useNarrationFunctions() {
         TextDisplaySettings.resetForNext();
         GameStatus.setLoading(true);
         try {
-            if (!narration.canContinue) {
+            const pendingLabelAction = PendingLabelAction.consume();
+            // isContinueLockedByLink is template-only (not a pixi-vn concept): a label step
+            // called requireLinkClickToContinue and the player hasn't followed the required
+            // MarkdownLink yet, so "continue" stays blocked even though narration.canContinue
+            // is true.
+            if (!pendingLabelAction && (!narration.canContinue || isContinueLockedByLink())) {
                 GameStatus.setLoading(false);
                 return;
             }
-            return narration
-                .continue(gameProps)
-                .then(() => {
-                    gameProps.invalidateInterfaceData();
-                    GameStatus.setLoading(false);
-                })
-                .catch((e) => {
-                    GameStatus.setLoading(false);
-                    console.error(e);
-                });
+            if (pendingLabelAction) {
+                await pendingLabelAction();
+            }
+            // Keep advancing within the current label - a paragraph at a time -
+            // until either the player must act (choice/input) or a new label is about to
+            // start/close (deferred by PendingLabelAction, resumed on the next goNext).
+            let revealedFirstStep = false;
+            while (
+                !PendingLabelAction.has() &&
+                narration.canContinue &&
+                !isContinueLockedByLink()
+            ) {
+                if (revealedFirstStep) {
+                    // Let the paragraph just revealed actually finish typing before asking
+                    // for another one - otherwise, for label steps that don't each require
+                    // player input (sound cues, narration-only lines), this loop races
+                    // straight through all of them and only the very last one ever gets
+                    // rendered as the (typewriter-animated) "last paragraph"; every one
+                    // before it gets demoted to an instantly-rendered "past" paragraph
+                    // mid-animation - which is why an embedded image or link nowhere near
+                    // the end of a burst would appear to skip its typewriter turn entirely.
+                    await TextDisplaySettings.waitUntilIdle();
+                }
+                await narration.continue(gameProps);
+                // Reveal each step as soon as it's ready so the typewriter starts right
+                // away, instead of waiting for the whole batch of steps below (label
+                // transitions, sound cues, etc.) to finish processing first. This MUST be
+                // awaited: waitUntilIdle() falls back to a fixed timeout if the typewriter
+                // hasn't signalled `start()` yet, and it can't have if React hasn't even
+                // re-rendered this step's paragraph into existence - an unawaited call here
+                // raced ahead into that fallback (worse on a cold/first render, which is
+                // slower to commit), skipping the just-revealed paragraph's animation
+                // entirely, image/link included.
+                revealedFirstStep = true;
+                await gameProps.invalidateInterfaceData();
+            }
+            // Covers the case where the loop body never ran at all (e.g. pendingLabelAction
+            // changed state - opened a choice menu - without any narration.continue call).
+            await gameProps.invalidateInterfaceData();
+            GameStatus.setLoading(false);
         } catch (e) {
             GameStatus.setLoading(false);
             console.error(e);
-            return;
         }
     }, [gameProps, hasOpenMenu]);
 
@@ -81,66 +116,64 @@ export function useNarrationFunctions() {
         async (item: StoredIndexedChoiceInterface) => {
             if (hasOpenMenu) return;
             GameStatus.setLoading(true);
-            return narration.choices
-                .select(item, gameProps)
-                .then(() => {
-                    gameProps.invalidateInterfaceData();
-                    GameStatus.setLoading(false);
-                })
-                .catch((e) => {
-                    GameStatus.setLoading(false);
-                    console.error(e);
-                });
+            try {
+                await narration.choices.select(item, gameProps);
+            } catch (e) {
+                GameStatus.setLoading(false);
+                console.error(e);
+                return;
+            }
+            // Selecting a choice that jumps/calls into a new label only defers the label
+            // start (see PendingLabelAction) - goNext is what actually consumes it and
+            // advances the narration to the next paragraph.
+            await goNext();
         },
-        [gameProps, hasOpenMenu],
+        [gameProps, goNext, hasOpenMenu],
     );
 
     const startNewGame = useCallback(
         async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
             GameStatus.setLoading(true);
             return Game.start(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
-                .then(() => gameProps.invalidateInterfaceData())
-                .finally(() => GameStatus.setLoading(false));
+                .then(() => goNext())
+                .catch((e) => {
+                    GameStatus.setLoading(false);
+                    console.error(e);
+                });
         },
-        [gameProps],
+        [gameProps, goNext],
     );
 
     const jump = useCallback(
         async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
             if (hasOpenMenu) return;
             GameStatus.setLoading(true);
+            clearLinkContinueLock();
             return narration
                 .jump(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
-                .then((result) => {
-                    gameProps.invalidateInterfaceData();
-                    GameStatus.setLoading(false);
-                    return result;
-                })
+                .then((result) => goNext().then(() => result))
                 .catch((e) => {
                     GameStatus.setLoading(false);
                     console.error(e);
                 });
         },
-        [gameProps, hasOpenMenu],
+        [gameProps, goNext, hasOpenMenu],
     );
 
     const call = useCallback(
         async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
             if (hasOpenMenu) return;
             GameStatus.setLoading(true);
+            clearLinkContinueLock();
             return narration
                 .call(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
-                .then((result) => {
-                    gameProps.invalidateInterfaceData();
-                    GameStatus.setLoading(false);
-                    return result;
-                })
+                .then((result) => goNext().then(() => result))
                 .catch((e) => {
                     GameStatus.setLoading(false);
                     console.error(e);
                 });
         },
-        [gameProps, hasOpenMenu],
+        [gameProps, goNext, hasOpenMenu],
     );
 
     const submitInputValue = useCallback(
@@ -189,7 +222,8 @@ export function useNarrationPointerHandlers() {
     const handlePointerDown = useCallback(
         (e: React.PointerEvent) => {
             if (e.button !== 0) return;
-            if (hasScrollableParent(e.target)) return;
+            // Let the scroll area's own scrollbar manage its drag behaviour.
+            if ((e.target as HTMLElement).closest('[data-slot="scroll-area-scrollbar"]')) return;
 
             longPressTriggered.current = false;
             pointerDownPos.current = { x: e.clientX, y: e.clientY };
@@ -236,8 +270,6 @@ export function useNarrationPointerHandlers() {
 
             // Let resize handles manage their own drag behaviour
             if ((e.target as HTMLElement).closest('[data-slot="resizable-handle"]')) return;
-            // Let native scrollbar interactions through
-            if (isScrollableElement(e.target as HTMLElement)) return;
 
             if (longPressTriggered.current) {
                 SkipSettings.setEnabled(false);

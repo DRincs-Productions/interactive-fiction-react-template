@@ -8,12 +8,3 @@ TextReplaces.add((key) => RegisteredCharacters.get(key)?.name, {
     i18nInterpolation: true,
     description: "Replaces a character ID with the character's name in the game.",
 });
-
-TextReplaces.add(() => "Stephanie", {
-    name: "steph_fullname",
-    validation: /steph_fullname/,
-    type: "after-translation",
-    i18nInterpolation: true,
-    description:
-        "Replaces the placeholder 'steph_fullname' with the full name of the character Stephanie.",
-});
