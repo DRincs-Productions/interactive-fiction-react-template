@@ -1,212 +1,57 @@
--> start
 === start ===
-# lazyload bundle m01 fm01 fm02
-
-# show image bg bg01-hallway
-# play sound sfx_whoosh delay 0.1
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-neutral01] xAlign 0.5 yAlign 1 with movein direction right ease circInOut type spring
-james: You're my roommate's replacement, huh?
-# play sound bgm_cheerful channel bgm loop true
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-smile01]
-james: Don't worry, you don't have much to live up to. Just don't use heroin like the last guy, and you'll be fine!
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-grin00]
-mc: ...
-
-He thrusts out his hand.
-# request input type string default Peter
-What is your name?
+# chapter chapter_the_keep
+# play sound sfx_rain_ambience channel bgm loop true
+The road climbs toward the keep through mud that sucks at every step, under a sky the colour of an old bruise.
+<>By the time the gate comes into view, the rain has soaked clean through your cloak.
+A gatekeeper leans over the palisade, torchlight catching the rust on his pike.
+gatekeeper: "Nobody comes up this road for nothing. Who are you, and what's your business at the keep?"
+# request input type string default Edmund
+He waits for your name.
 # rename mc { _input_value_ }
+mc: "[mc]," you call back. "I was told the steward is hiring hands before winter."
+<- start_memory
+# play sound sfx_gate_creak
+[gatekeeper] grunts, satisfied enough, and hauls the gate open.
+gatekeeper: "Go on, then. Great Hall's straight across the yard - can't miss it."
+-> start_hall
 
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-smile01]
-james: [james]!
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-grin00]
-mc: ...[mc].
+=== start_memory ===
+You think, not for the first time, of the empty larder back home, and the letter that brought you here: three lines, promising work to anyone willing to do it.
+<>Your mother sold the last of the goats before you left, and it still wasn't enough - not with two more mouths at the table and the frost coming early this year. Nobody said it out loud, but everyone understood: one of you had to go, and you were the one who could be spared.
+<>Eleven days you walked to answer three lines of ink, sleeping in ditches and church porches, trading chores for bread when your coin ran out. If the steward turns you away tonight, you're not entirely sure what's left to walk back to.
+<>Whatever waits across that yard, it has to be better than another winter with nothing to show for it.
+-> DONE
 
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-grin00]
-I take his hand and shake.
+=== start_hall ===
+# stop sound sfx_rain_ambience
+# play sound bgm_medieval_hall channel bgm loop true
+The Great Hall smells of woodsmoke and old wax. Above the hearth hangs a painted view of the keep at midsummer: ![The keep in summer](keep_hall)
+mc: "I'm here about the work," you say.
+[steward] sets down his quill.
+steward: "Then you'll want to prove you're worth feeding, first."
+# require link
+steward: He nods toward a nail-worn notice pinned by the door. [Read the notice](notice_board)
+-> DONE
 
-# show imagecontainer james [m01-body m01-eyes-wow m01-mouth-wow01]
-james: Ooh, [mc]! Nice, firm handshake!
-# show imagecontainer james [m01-body m01-eyes-annoy m01-mouth-annoy01]
-<>The last guy always gave me the dead fish.
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-smile01]
-<>I already think we're gonna get along fine.
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-smile01]
-james: Come on in and...
-# show imagecontainer james [m01-body m01-eyes-annoy m01-mouth-smile01]
-james: ...
-# show imagecontainer james [m01-body m01-eyes-annoy m01-mouth-annoy01]
-james: I know you're both watching, come on out already!
+=== notice_board ===
+The board by the door is crowded with the keep's business, wax-stiff scraps layered three deep: a bounty on a wolf that's been taking sheep from the low pasture, a plea for anyone who can splint a broken arm, a betrothal notice gone yellow at the corners.
+<>Pinned above the rest, newer than the others, is the one you walked eleven days for - short and blunt: "Seeking able hands. Nights only. Ask the steward."
+<>Nothing you didn't already gather. Still, seeing it nailed up in ink makes it feel less like a rumour and more like a job.
+-> start_hall_task
 
-# play sound sfx_whoosh delay 0.1
-# show imagecontainer james [m01-body m01-eyes-annoy m01-mouth-annoy00]
-# show imagecontainer sly [fm01-body fm01-eyes-wow fm01-mouth-soft01] xAlign 0.2 yAlign 1 with movein direction right ease anticipate
-# show imagecontainer steph [fm02-body fm02-eyes-nervous fm02-mouth-nervous00] xAlign 0.8 yAlign 1 with movein direction left ease easeInOut
-sly: I just wanted to see what the new guy was like.
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-smile01]
-<><span class="inline-block animate-bounce animate-duration-700">Hey</span>, you, [mc]- be nice to our little brother,
-# show imagecontainer sly [fm01-body fm01-eyes-smile fm01-mouth-grin00]
-<>or you'll have to deal with *us*.
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-neutral00]
-# show imagecontainer sly [fm01-body fm01-eyes-grin fm01-mouth-grin00]
-# show imagecontainer steph [fm02-body fm02-eyes-nervous fm02-mouth-smile00]
-mc: ...
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-smile01]
-# show imagecontainer sly [fm01-body fm01-eyes-smile fm01-mouth-smile00]
-james: [mc], this is [sly].
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-smile00]
-# show imagecontainer steph [fm02-body fm02-eyes-joy fm02-mouth-smile00]
-<>Yes, that is her real name.
+=== start_hall_task ===
+<>steward: "There's a task needs doing tonight. Simple enough - if you've got the nerve for it."
+* [Ask what the task is]
+    -> second_part
+* [Say you'd rather wait until morning]
+    -> start_wait_morning
 
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-smile00]
-I put out my hand.
-
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-grin00]
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-upset01]
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-nervous00]
-sly: I'm not shakin' your hand until I decide you're an all-right dude.
-# show imagecontainer sly [fm01-body fm01-eyes-grin fm01-mouth-serious01]
-# show imagecontainer steph [fm02-body fm02-eyes-nervous fm02-mouth-nervous00]
-<>Sorry, policy.
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-grin00]
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-smile00]
-mc: Fair enough, I'm a pretty scary guy, or so I've been told.
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-smile01]
-# show imagecontainer sly [fm01-body fm01-eyes-smile fm01-mouth-serious01]
-# show imagecontainer steph [fm02-body fm02-eyes-nervous fm02-mouth-smile00]
-james: The redhead behind her is [steph_fullname].
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-grin00]
-# show imagecontainer sly [fm01-body fm01-eyes-smile fm01-mouth-serious00]
-# show imagecontainer steph [fm02-body fm02-eyes-joy fm02-mouth-smile01]
-steph: Hey! Everyone calls me [steph]. I'll shake your hand.
-
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-smile00]
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-serious00]
-# show imagecontainer steph [fm02-body fm02-eyes-smile fm02-mouth-smile00]
-		She puts out her hand, and I take it.
-
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-serious00]
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-nervous00]
-mc: Thanks, good to meet you, [steph_fullname].
-# show imagecontainer james [m01-body m01-eyes-wow m01-mouth-smile00]
-# show imagecontainer sly [fm01-body fm01-eyes-wow fm01-mouth-serious00]
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-wow01]
-steph: WOW, that is, like, the most perfect handshake I've ever had! Firm, but also gentle.
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-upset00]
-<>[sly], you *gotta* shake his hand!
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-grin00]
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-serious01]
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-nervous00]
-sly: It's just a handshake...
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-grin00]
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-serious00]
-# show imagecontainer steph [fm02-body fm02-eyes-upset fm02-mouth-upset01]
-steph: <span class="inline-block animate-wave">Then just give it to him!</span>
-# show imagecontainer james [m01-body m01-eyes-concern m01-mouth-smile01]
-# show imagecontainer sly [fm01-body fm01-eyes-smile fm01-mouth-serious00]
-# show imagecontainer steph [fm02-body fm02-eyes-upset fm02-mouth-upset00]
-james: Don't worry, [mc], she's just giving you the run-down. She's kinda like a father
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-nervous00]
-# show imagecontainer sly [fm01-body fm01-eyes-wow fm01-mouth-wow01]
-<>...
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-upset00]
-<>I mean a mother... to us.
-
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-smile00]
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-upset00]
-[sly] thrusts her hand out to shake mine.
-
-# show imagecontainer james [m01-body m01-eyes-wow m01-mouth-wow01]
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-upset01]
-# show imagecontainer steph [fm02-body fm02-eyes-nervous fm02-mouth-smile00]
-sly: Like a father?!?!
-
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-grin00]
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-upset00]
-		I'm afraid to take her hand when she's mad, but I do.
-
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-grin00]
-# show imagecontainer sly [fm01-body fm01-eyes-wow fm01-mouth-wow01]
-# show imagecontainer steph [fm02-body fm02-eyes-joy fm02-mouth-smile00]
-sly: Wow, that was a good handshake...
-# show imagecontainer sly [fm01-body fm01-eyes-wow fm01-mouth-serious00]
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-smile01]
-# show imagecontainer steph [fm02-body fm02-eyes-smile fm02-mouth-smile00]
-james: Well, I mean, you are *kinda* acting like a father.
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-smile01]
-# show imagecontainer sly [fm01-body fm01-eyes-soft fm01-mouth-serious00]
-<>Like, I can totally see it: I'm the daughter, and you as my father,
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-nervous00]
-<>you want to make sure I'm going out with the right guy...
-# show imagecontainer james [m01-body m01-eyes-concern m01-mouth-smile01]
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-serious00]
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-upset00]
-<>or something...
-# show imagecontainer james [m01-body m01-eyes-concern m01-mouth-grin00]
-mc: ...
-# show imagecontainer sly [fm01-body fm01-eyes-upset fm01-mouth-upset00]
-sly: ...
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-grin00]
-# show imagecontainer sly [fm01-body fm01-eyes-wow fm01-mouth-wow01]
-# show imagecontainer steph [fm02-body fm02-eyes-joy fm02-mouth-smile01]
-steph: ...BWAHAHA!!!!!
-# show imagecontainer sly [fm01-body fm01-eyes-wow fm01-mouth-serious00]
-<>JAMES!!!! WHAAAAT?????? YOU'RE SO AWKWARD!!!!
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-smile00]
-# show imagecontainer sly [fm01-body fm01-eyes-smile fm01-mouth-serious00]
-# show imagecontainer steph [fm02-body fm02-eyes-joy fm02-mouth-smile00]
-mc: O-*kay*, I'm gonna go get settled in-
-# show imagecontainer sly [fm01-body fm01-eyes-smile fm01-mouth-smile00]
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-wow01]
-steph: Wait!
-# show imagecontainer steph [fm02-body fm02-eyes-joy fm02-mouth-smile01]
-<>I've got a gift for you!
-# show imagecontainer steph [fm02-body fm02-eyes-joy fm02-mouth-smile00]
-mc: ...?
-# show imagecontainer sly [fm01-body fm01-eyes-grin fm01-mouth-smile01]
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-upset00]
-sly: It's food.
-# show imagecontainer james [m01-body m01-eyes-concern m01-mouth-grin00]
-# show imagecontainer sly [fm01-body fm01-eyes-grin fm01-mouth-grin00]
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-wow01]
-steph: [sly]!
-# show imagecontainer steph [fm02-body fm02-eyes-upset fm02-mouth-upset01]
-<>SPOILERS!!!!
-
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-grin00]
-# show imagecontainer sly [fm01-body fm01-eyes-smile fm01-mouth-smile00]
-# show imagecontainer steph [fm02-body fm02-eyes-upset fm02-mouth-nervous00]
-# play sound sfx_whoosh delay 0.1
-# remove image steph with moveout direction left ease easeInOut
-[steph_fullname] goes through the opposite door,
-# play sound sfx_whoosh delay 0.1
-<- animation_01
-<>and returns with a HUGE tinfoil-covered platter.
-
-# show imagecontainer james [m01-body m01-eyes-concern m01-mouth-smile01]
-# show imagecontainer sly [fm01-body fm01-eyes-smile fm01-mouth-serious00]
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-wow01]
-james: Looks like you baked way too much again.
-# show imagecontainer james [m01-body m01-eyes-grin m01-mouth-grin00]
-# show imagecontainer sly [fm01-body fm01-eyes-grin fm01-mouth-serious00]
-# show imagecontainer steph [fm02-body fm02-eyes-upset fm02-mouth-upset01]
-steph: He doesn't have to know that!!!
-# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-smile00]
-# show imagecontainer sly [fm01-body fm01-eyes-smile fm01-mouth-serious00]
-# show imagecontainer steph [fm02-body fm02-eyes-joy fm02-mouth-smile00]
-mc: ...thanks... um...
-# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-wow01]
-steph: Oh! You gotta take in your luggage!
-
-# pause all sounds
-# show imagecontainer steph [fm02-body fm02-eyes-smile fm02-mouth-smile00]
-# play sound sfx_whoosh delay 0.1
-# remove image james with moveout direction right ease circInOut type spring duration 0.5 delay 0.05
-# remove image sly with moveout direction right ease anticipate duration 0.5
-# remove image steph with moveout direction left ease easeInOut duration 0.5 delay 0.1
-
-You want continue to the next part?<># continue
-* [Yes, I want to continue]
--> second_part
-* [No, I want to stop here]
+=== start_wait_morning ===
+mc: "Whatever it is, it'll keep till morning," you say. "I've had enough of the rain for one night."
+[steward] studies you a moment, then shrugs and waves you toward a bench by the fire. Sleep finds you fast - the first roof over your head in eleven days.
+# stop sound bgm_medieval_hall
+You wake to grey morning light and the hall filling up with breakfast noise. [steward] is already at his table, and he doesn't look up.
+steward: "Slept well? Good. Old Godwin took the watchtower job in the end - didn't fancy waiting on a stranger to make up his mind."
+<>He doesn't offer you another task. Sitting there with a cold bowl of porridge, you get the feeling you've already had your one chance to prove yourself - and let it pass.
+<>— The End —
 -> END

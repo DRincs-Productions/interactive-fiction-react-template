@@ -11,18 +11,22 @@ declare module "@drincs/pixi-vn/characters" {
 }
 declare module "@drincs/pixi-vn/narration" {
     interface PixivnLabelIds {
-        "second_part": never;
-        "second_part_omen": never;
-        "second_part_end": never;
-        "watchtower_reveal": never;
-        "watchtower_end_report": never;
-        "watchtower_end_mercy": never;
-        "start": never;
-        "start_memory": never;
-        "start_hall": never;
         "notice_board": never;
+        "second_part": never;
+        "second_part_end": never;
+        "second_part_omen": never;
+        "start": never;
+        "start_hall": never;
         "start_hall_task": never;
+        "start_hall_task_|_c-0": never;
+        "start_hall_task_|_c-1": never;
+        "start_memory": never;
         "start_wait_morning": never;
+        "watchtower_end_mercy": never;
+        "watchtower_end_report": never;
+        "watchtower_reveal": never;
+        "watchtower_reveal_|_c-0": never;
+        "watchtower_reveal_|_c-1": never;
     }
 }
 declare module "@drincs/pixi-vn/canvas" {
@@ -45,8 +49,8 @@ declare module "@drincs/pixi-vn/canvas" {
 }
 export const characterIds = ["mc","gatekeeper","steward","mara"] as const;
 export const characterIdsEnum = {"mc":"mc","gatekeeper":"gatekeeper","steward":"steward","mara":"mara"} as const;
-export const labelIds = ["second_part","second_part_omen","second_part_end","watchtower_reveal","watchtower_end_report","watchtower_end_mercy","start","start_memory","start_hall","notice_board","start_hall_task","start_wait_morning"] as const;
-export const labelIdsEnum = {"second_part":"second_part","second_part_omen":"second_part_omen","second_part_end":"second_part_end","watchtower_reveal":"watchtower_reveal","watchtower_end_report":"watchtower_end_report","watchtower_end_mercy":"watchtower_end_mercy","start":"start","start_memory":"start_memory","start_hall":"start_hall","notice_board":"notice_board","start_hall_task":"start_hall_task","start_wait_morning":"start_wait_morning"} as const;
+export const labelIds = ["notice_board","second_part","second_part_end","second_part_omen","start","start_hall","start_hall_task","start_hall_task_|_c-0","start_hall_task_|_c-1","start_memory","start_wait_morning","watchtower_end_mercy","watchtower_end_report","watchtower_reveal","watchtower_reveal_|_c-0","watchtower_reveal_|_c-1"] as const;
+export const labelIdsEnum = {"notice_board":"notice_board","second_part":"second_part","second_part_end":"second_part_end","second_part_omen":"second_part_omen","start":"start","start_hall":"start_hall","start_hall_task":"start_hall_task","start_hall_task_|_c-0":"start_hall_task_|_c-0","start_hall_task_|_c-1":"start_hall_task_|_c-1","start_memory":"start_memory","start_wait_morning":"start_wait_morning","watchtower_end_mercy":"watchtower_end_mercy","watchtower_end_report":"watchtower_end_report","watchtower_reveal":"watchtower_reveal","watchtower_reveal_|_c-0":"watchtower_reveal_|_c-0","watchtower_reveal_|_c-1":"watchtower_reveal_|_c-1"} as const;
 export const bundleIds = ["images","audio"] as const;
 export const bundleIdsEnum = {"images":"images","audio":"audio"} as const;
 export const assetAliasIds = ["images_keep_hall","keep_hall","images_main-menu","main-menu","images_watchtower","watchtower","bgm_medieval_hall","sfx_gate_creak","sfx_rain_ambience","sfx_torch_crackle"] as const;

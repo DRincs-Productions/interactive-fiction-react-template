@@ -1,4 +1,4 @@
-import { DelayedAnimatedDots, NextStepLoadingDots } from "@/components/loading";
+import { NextStepLoadingDots } from "@/components/loading";
 import { markdownComponents } from "@/components/markdown-components";
 import { ChoiceMenu } from "@/components/menus/choice-menus";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,7 +18,7 @@ import {
     useState,
 } from "react";
 import Markdown from "react-markdown";
-import { MarkdownTypewriterHooks } from "react-markdown-typewriter";
+import { MarkdownTypewriter } from "markdown-typewriter/react";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 
@@ -233,17 +233,14 @@ const LastParagraph = memo(function LastParagraph({
                 </span>
             )}
             <span>
-                <MarkdownTypewriterHooks
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw]}
+                <MarkdownTypewriter
                     components={markdownComponents}
                     delay={typewriterDelay}
                     motionProps={motionProps}
-                    fallback={<DelayedAnimatedDots />}
                     specialCharacters={specialCharacters}
                 >
                     {animatedText}
-                </MarkdownTypewriterHooks>
+                </MarkdownTypewriter>
             </span>
             <NextStepLoadingDots />
         </p>

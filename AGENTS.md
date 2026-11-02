@@ -162,3 +162,11 @@ To include the library in the final installer you need to tell Tauri to bundle i
 ```
 
 Tauri v2 merges the matching file into `tauri.conf.json` automatically at build time. Create only the files for the platforms you want to distribute on — one, two, or all three.
+
+## Ink commands and variables
+
+Registered in `src/content/ink/hashtag-commands.ts`. In Ink prose, write ordinary Markdown (`![alt](assetAlias)`, `[text](labelId)`) directly.
+
+- `# chapter <translationKey>` calls `setChapter()`: increments the chapter counter and records the name. Pass a translation key, not translated text.
+- `# require link` calls `requireLinkClickToContinue()`: put it in the same step as the Markdown link; continue stays blocked until the link is followed.
+- `chapter_counter` and `chapter_name` are Ink variables served by a `VariableGetter` handler backed by `getChapterCounter()` and `getChapterName()`.
