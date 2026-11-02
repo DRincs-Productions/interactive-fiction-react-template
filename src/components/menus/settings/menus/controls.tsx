@@ -1,6 +1,8 @@
+import { Dialog, FullscreenDialogContent } from "@/components/ui/fullscreen-dialog";
 import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useSearchParamState, useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { cn } from "@/lib/utils";
 import { type HotkeyRegistrationView, useHotkeyRegistrations } from "@tanstack/react-hotkeys";
 import { Search } from "lucide-react";
@@ -111,5 +113,22 @@ export function ControlsListSettingsPage() {
                 </div>
             </ScrollArea>
         </>
+    );
+}
+
+export function ControlsDialog() {
+    const open = useSearchParamState<boolean>("controls");
+    const setOpen = useSetSearchParamState<boolean>("controls");
+    const { t } = useTranslation(["ui"]);
+
+    return (
+        <Dialog open={open ?? false} onOpenChange={(isOpen) => setOpen(isOpen || undefined)}>
+            <FullscreenDialogContent title={t("hotkeys_menu")} centered>
+                {/* Only mount while actually open: useHotkeyRegistrations() re-renders on every
+                hotkey (un)registration app-wide, which otherwise fires during unrelated
+                components' render phase and trips React's setState-during-render warning. */}
+                {open && <ControlsListSettingsPage />}
+            </FullscreenDialogContent>
+        </Dialog>
     );
 }

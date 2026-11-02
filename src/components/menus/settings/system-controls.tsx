@@ -58,7 +58,6 @@ export function TextSizeSettings() {
         <div className="flex flex-col gap-1.5">
             <div>
                 <p className="text-sm font-medium leading-none">{t("text_size")}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{t("text_size_description")}</p>
             </div>
             <div className="flex items-center gap-2">
                 <Slider
@@ -89,7 +88,6 @@ export function ModeToggle() {
         <div className="flex items-center justify-between gap-4">
             <div className="flex-1">
                 <p className="text-sm font-medium leading-none">{t("theme_mode")}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{t("theme_mode_description")}</p>
             </div>
             <ButtonGroup className="shrink-0">
                 <TooltipProvider>
@@ -152,7 +150,6 @@ export function FullScreenSettings() {
         <div className="flex items-center justify-between gap-4">
             <div className="flex-1">
                 <p className="text-sm font-medium leading-none">{t("fullscreen")}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{t("fullscreen_description")}</p>
             </div>
             <Button
                 variant="outline"
@@ -193,9 +190,6 @@ export function LanguageSettings() {
             <div className="flex items-center justify-between gap-2">
                 <div className="flex-1">
                     <p className="text-sm font-medium leading-none">{t("language")}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                        {t("language_description")}
-                    </p>
                 </div>
                 {!import.meta.env.PROD && (
                     <TooltipProvider>

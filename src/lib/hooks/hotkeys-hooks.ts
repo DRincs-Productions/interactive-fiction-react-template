@@ -162,18 +162,17 @@ export function useSaveHotkeys(): null {
 export function useSettingsHotkeys(): null {
     const { t } = useTranslation(["ui"]);
     const setSettingsOpen = useSetSearchParamState<boolean>("settings");
-    const setSettingsTab = useSetSearchParamState<string>("settings_tab");
+    const setControlsOpen = useSetSearchParamState<boolean>("controls");
+    const setDiagnosticsOpen = useSetSearchParamState<boolean>("diagnostics");
     const { isAnyMenuOrDialogOpen } = useMenuDialogState();
 
     const openControlsPage = useCallback(() => {
-        setSettingsOpen(true);
-        setSettingsTab("menus/controls");
-    }, [setSettingsOpen, setSettingsTab]);
+        setControlsOpen(true);
+    }, [setControlsOpen]);
 
     const openDiagnosticsPage = useCallback(() => {
-        setSettingsOpen(true);
-        setSettingsTab("menus/diagnostics");
-    }, [setSettingsOpen, setSettingsTab]);
+        setDiagnosticsOpen(true);
+    }, [setDiagnosticsOpen]);
 
     useHotkeys([
         {
@@ -214,17 +213,8 @@ export function useSettingsHotkeys(): null {
 }
 
 export function useGameHotkeys(): null {
-    const setSettingsOpen = useSetSearchParamState<boolean>("settings");
-    const setSettingsTab = useSetSearchParamState<string>("settings_tab");
-    const setHistory = useSetSearchParamState<boolean>("history");
     const { t } = useTranslation(["ui"]);
     const { isAnyMenuOrDialogOpen } = useMenuDialogState();
-
-    const openHistoryPage = useCallback(() => {
-        setHistory(undefined);
-        setSettingsOpen(true);
-        setSettingsTab("menus/history");
-    }, [setHistory, setSettingsOpen, setSettingsTab]);
 
     const toggleQuickActionsWheel = useCallback(() => {
         const isOpen = QuickActionsWheelState.store.state.open;
@@ -236,17 +226,6 @@ export function useGameHotkeys(): null {
     }, []);
 
     useHotkeys([
-        {
-            hotkey: "H",
-            callback: openHistoryPage,
-            options: {
-                enabled: !isAnyMenuOrDialogOpen,
-                meta: {
-                    name: t("history"),
-                    description: t("history_hotkey_description"),
-                },
-            },
-        },
         {
             hotkey: "Tab",
             callback: toggleQuickActionsWheel,

@@ -1,6 +1,6 @@
 # Project instructions
 
-This repository is a template for a visual novel built with **Pixi’VN** and **React**. These instructions are intentionally general and can be used as they are; developers may adapt them to their game whenever useful.
+This repository is a template for **interactive fiction** built with **Pixi’VN** and **React**. Its main goal is to make the player feel like they are reading a book: narration flows as paragraphs in a scrollable page, with optional illustrations and interactive links. These instructions are intentionally general and can be adapted to a specific game whenever useful.
 
 ## Engine
 
@@ -56,8 +56,20 @@ The `.vscode/` directory contains formatting settings, recommended extensions, t
 
 - Every screen is a **TanStack Router** route in `src/routes/`.
 - For UI made of elements that are not drawings coming from media (text, buttons, layouts, menus, dialogs, forms), always use **React** (with the existing shadcn/ui components when suitable).
-- For images (assets), use **PixiJS** (`pixi.js`) directly. Do not use Pixi’VN for UI: Pixi’VN is for the narrative canvas, while UI rendering with PixiJS must go through `pixi.js` itself.
+- The narration screen is a **React book**, not a Pixi’VN canvas scene. Render prose and inline illustrations with the existing React Markdown components. Use Pixi’VN’s canvas only if a game intentionally adds a separate canvas-based scene; do not use it to lay out the standard book UI.
+- For images embedded in narration, use Markdown image syntax and the existing `MarkdownImage` renderer. It supports registered Pixi’VN asset aliases and ordinary image URLs. For other custom image UI, prefer existing React components; if PixiJS is used directly, add `pixi.js` as a direct dependency before importing it.
 - If `pixi.js` is used directly and is not yet a direct dependency of the project, add it to `package.json` first, before writing code that imports it.
+
+## Interactive fiction conventions
+
+- The intended reading experience is book-like: past paragraphs remain on the page and the latest paragraph is revealed with the typewriter effect. Keep story text and its presentation in React; use Pixi’VN for narrative state, labels, choices, history, and saves.
+- **Jump vs. call**: `narration.jump(label)` replaces the running label and starts a new page (a `goto`, no way back); `narration.call(label)` pushes the label as a subroutine, opening a new paragraph in the same page and returning to the caller when it ends. Use `call` for digressions that return (flashbacks, reusable snippets) and `jump` to move the story forward for good.
+- **Markdown in narration** (`src/components/markdown-components.tsx`):
+  - `MarkdownImage` renders `![alt](src)` through the existing `Image` component; `src` may be a registered Pixi’VN asset alias or a plain URL.
+  - `MarkdownLink` renders `[text](target)`: if `target` is a registered label id (`RegisteredLabels.has`), clicking it `jump`s to that label (via `useNarrationFunctions().jumpToLabel`, never `call`); any other href stays an ordinary external link.
+- **Required links**: call `requireLinkClickToContinue()` from `src/lib/utils/continue-lock-utility.ts` in the same step that shows the link. It is a template-only storage flag, checked by `goNext` and `useQueryCanGoNext`, that blocks every way of advancing (click, Space/Enter, skip, auto-play). `jumpToLabel` clears it automatically; use `isContinueLockedByLink()` / `clearLinkContinueLock()` for custom code.
+- **Chapters**: `src/lib/utils/chapter-utility.ts` keeps a chapter counter and name in Pixi’VN storage, so both are saved and restored with the game. `setChapter(key)` increments the counter and records the name; pass a translation key (namespace `narration`), not translated text, so it follows language changes. Read with `getChapterCounter()` / `getChapterName()`, or from a save file with `readChapterFromSave(state)`.
+- **Save slots**: the save/load menu (`src/components/menus/save-menu/`) has 1 quick-save slot (`QUICK_SAVE_ID`, F5 / Ctrl+S, always overwritten) and 5 fixed manual slots (`MANUAL_SAVE_SLOTS`, ids 0-4), so there is no pagination. There are no screenshots: each slot is a compact `Item` row showing the custom name, else the chapter (`readChapterFromSave`), else a generic label; the date/time; and an excerpt of the last dialogue line in the save (`getExcerpt`, `getLastDialogueRawText` in `save-utility.ts`).
 
 ## Verification and tools
 
