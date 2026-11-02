@@ -5,20 +5,16 @@ export const mc = new Character("mc", {
     name: "Me",
 });
 
-export const james = new Character("james", {
-    name: "James",
-    color: "#0084ac",
+export const gatekeeper = new Character("gatekeeper", {
+    name: "Wilkin",
 });
 
-export const steph_fullname = "Stephanie";
-export const steph = new Character("steph", {
-    name: "Steph",
-    color: "#ac5900",
+export const steward = new Character("steward", {
+    name: "Osric",
 });
 
-export const sly = new Character("sly", {
-    name: "Sly",
-    color: "#6d00ac",
+export const mara = new Character("mara", {
+    name: "Mara",
 });
 
-RegisteredCharacters.add([mc, james, steph, sly]);
+RegisteredCharacters.add([mc, gatekeeper, steward, mara]);

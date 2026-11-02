@@ -1,38 +1,33 @@
 import packageJson from "@/../package.json";
+import { MainMenuBackground } from "@/components/backgrounds/texture-background";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { CANVAS_UI_LAYER_NAME, overlayTextShadowClass } from "@/constants";
 import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
-import { useQuit } from "@/lib/hooks/quit-hooks";
 import { useQueryLastSave } from "@/lib/query/save-query";
 import { GameStatus } from "@/lib/stores/game-status-store";
-import { cn } from "@/lib/utils";
 import { autoExit, save } from "@/lib/utils/save-utility";
-import { canvas, ImageSprite } from "@drincs/pixi-vn";
 import { useHotkeys } from "@tanstack/react-hotkeys";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
-import { AlertCircle, CirclePlay, LogOut, Play, Save, Settings } from "lucide-react";
+import { AlertCircle, CirclePlay, Play, Save, Settings } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 const menuButtonClass =
-    "justify-start hover:scale-105 focus-visible:scale-105 transition-transform duration-150 ease-out";
+    "w-full justify-center sm:w-auto sm:min-w-36 hover:scale-105 focus-visible:scale-105 transition-transform duration-150 ease-out";
 
 export function MainMenu() {
     const gameProps = useGameProps();
     const { uiTransition: t, navigate } = gameProps;
     const setSettings = useSetSearchParamState<boolean>("settings");
-    const setSettingsTab = useSetSearchParamState<string>("settings_tab");
+    const setSaves = useSetSearchParamState<boolean>("saves");
     const { startNewGame } = useNarrationFunctions();
     const loading = useSelector(GameStatus.store, (state) => state.loading);
     const menuRef = useRef<HTMLDivElement>(null);
-    const { quit, canQuit } = useQuit();
 
     /** Returns all enabled menuitem buttons inside the menu container. */
     function getMenuItems(): HTMLButtonElement[] {
@@ -115,106 +110,101 @@ export function MainMenu() {
     ]);
 
     useEffect(() => {
-        const bg = new ImageSprite({}, "images_main-menu");
-        bg.load();
-        const layer = canvas.getLayer(CANVAS_UI_LAYER_NAME);
-        if (layer) {
-            layer.addChild(bg);
-        }
-
         // Auto-focus the first enabled button so arrow-key navigation works immediately.
+        // preventScroll avoids the browser scrolling the menu's own overflow container
+        // (buttons sit near its bottom) to reveal the newly-focused button on mount.
         const firstItem = menuRef.current?.querySelector<HTMLButtonElement>(
             "button[role='menuitem']:not(:disabled)",
         );
         firstItem?.focus();
-
-        return () => {
-            canvas.getLayer(CANVAS_UI_LAYER_NAME)?.removeChildren();
-        };
     }, []);
 
     return (
-        <div className="relative h-full w-full flex items-center justify-start p-3 sm:p-6 md:p-10">
-            {/* Buttons card – semi-transparent, fade-in from left on mount */}
-            <Card className="relative z-10 w-full max-w-xs sm:max-w-sm bg-background/70 backdrop-blur-sm animate-in fade-in slide-in-from-left-10 duration-500 ease-out fill-mode-both">
-                <CardContent ref={menuRef} role="menu" className="flex flex-col gap-2 pt-4">
-                    <ContinueMenuButton
-                        disabled={loading}
-                        onLoadingChange={GameStatus.setLoading}
+        <div className="relative isolate flex h-full w-full flex-1 flex-col items-center">
+            <MainMenuBackground />
+            {/* Settings – icon button in the top-right corner, intentionally left out of arrow-key menu navigation */}
+            <div className="absolute top-3 right-3 z-20 sm:top-4 sm:right-4 md:top-6 md:right-6">
+                <Tooltip>
+                    <TooltipTrigger
+                        render={
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={t("settings")}
+                                onClick={() => setSettings(true)}
+                                disabled={loading}
+                            >
+                                <Settings className="size-4" />
+                            </Button>
+                        }
                     />
+                    <TooltipContent>{t("settings")}</TooltipContent>
+                </Tooltip>
+            </div>
 
-                    <Button
-                        role="menuitem"
-                        onClick={async () => {
-                            GameStatus.setLoading(true);
-                            await navigate({ to: "/game/narration" });
-                            startNewGame("start");
-                        }}
-                        disabled={loading}
-                        className={menuButtonClass}
-                    >
-                        <Play className="size-4" />
-                        {t("start")}
-                    </Button>
-
-                    <Button
-                        role="menuitem"
-                        onClick={() => {
-                            setSettings(true);
-                            setSettingsTab("menus/save-load");
-                        }}
-                        disabled={loading}
-                        variant="outline"
-                        className={menuButtonClass}
-                    >
-                        <Save className="size-4" />
-                        {t("load")}
-                    </Button>
-
-                    <Button
-                        role="menuitem"
-                        onClick={() => setSettings(true)}
-                        disabled={loading}
-                        variant="outline"
-                        className={menuButtonClass}
-                    >
-                        <Settings className="size-4" />
-                        {t("settings")}
-                    </Button>
-
-                    {canQuit && (
-                        <Button
-                            role="menuitem"
-                            onClick={quit}
-                            disabled={loading}
-                            variant="outline"
-                            className={menuButtonClass}
-                        >
-                            <LogOut className="size-4" />
-                            {t("quit")}
-                        </Button>
-                    )}
-
-                    {loading ? (
-                        <div
-                            className="flex items-center justify-end pt-1 text-muted-foreground"
-                            aria-live="polite"
-                        >
-                            <Spinner />
-                            <span className="sr-only">Loading</span>
-                        </div>
-                    ) : null}
-                </CardContent>
-            </Card>
-
-            {/* Game name + version – bottom right, outlined for readability on any bg */}
-            <div className="absolute bottom-3 right-3 z-0 text-right pointer-events-none">
-                <p className={cn("text-xs font-semibold text-white", overlayTextShadowClass)}>
+            {/* Cover – title sits a little below the top edge, description right under it */}
+            <div className="flex flex-col items-center gap-3 pt-20 text-center sm:pt-28">
+                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
                     {packageJson.name}
+                </h1>
+                <p className="max-w-md text-sm text-muted-foreground sm:text-base">
+                    {packageJson.description}
                 </p>
-                <p className={cn("text-[0.65rem] text-white/80", overlayTextShadowClass)}>
-                    v{packageJson.version}
-                </p>
+            </div>
+
+            <div className="flex-1" />
+
+            {/* Continue / Start / Load – centered at the bottom, no card around them */}
+            <div
+                ref={menuRef}
+                role="menu"
+                className="flex w-full flex-col items-center gap-2 pb-4 sm:w-auto sm:flex-row sm:gap-3"
+            >
+                <ContinueMenuButton disabled={loading} onLoadingChange={GameStatus.setLoading} />
+
+                <Button
+                    role="menuitem"
+                    size="lg"
+                    onClick={async () => {
+                        GameStatus.setLoading(true);
+                        await navigate({ to: "/game/narration" });
+                        startNewGame("start");
+                    }}
+                    disabled={loading}
+                    className={menuButtonClass}
+                >
+                    <Play className="size-4" />
+                    {t("start")}
+                </Button>
+
+                <Button
+                    role="menuitem"
+                    size="lg"
+                    onClick={() => setSaves(true)}
+                    disabled={loading}
+                    variant="outline"
+                    className={menuButtonClass}
+                >
+                    <Save className="size-4" />
+                    {t("load")}
+                </Button>
+            </div>
+
+            {loading ? (
+                <div
+                    className="flex items-center justify-center pb-10 text-muted-foreground sm:pb-14"
+                    aria-live="polite"
+                >
+                    <Spinner />
+                    <span className="sr-only">Loading</span>
+                </div>
+            ) : (
+                <div className="pb-10 sm:pb-14" />
+            )}
+
+            {/* Game name + version – bottom right, theme-colored */}
+            <div className="pointer-events-none absolute right-3 bottom-2 z-0 text-right text-muted-foreground sm:right-4 sm:bottom-3">
+                <p className="text-[0.65rem]">v{packageJson.version}</p>
             </div>
         </div>
     );
@@ -274,6 +264,7 @@ export function ContinueMenuButton({
                     render={
                         <Button
                             role="menuitem"
+                            size="lg"
                             onClick={handleClick}
                             disabled={isDisabled}
                             className={menuButtonClass}
@@ -290,6 +281,7 @@ export function ContinueMenuButton({
     return (
         <Button
             role="menuitem"
+            size="lg"
             onClick={handleClick}
             disabled={isDisabled}
             className={menuButtonClass}

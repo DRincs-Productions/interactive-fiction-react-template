@@ -1,5 +1,5 @@
 import { Spinner } from "@/components/ui/spinner";
-import { useQueryDialogue } from "@/lib/query/narration-query";
+import { useQueryNarrationParagraphs } from "@/lib/query/narration-query";
 import { GameStatus } from "@/lib/stores/game-status-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { useSelector } from "@tanstack/react-store";
@@ -40,7 +40,7 @@ export function NextStepLoadingDots() {
         TextDisplaySettings.store,
         (state) => state.inProgress,
     );
-    const { isLoading } = useQueryDialogue();
+    const { isLoading } = useQueryNarrationParagraphs();
 
     if (typewriterInProgress || (!nextStepLoading && !isLoading)) {
         return null;
