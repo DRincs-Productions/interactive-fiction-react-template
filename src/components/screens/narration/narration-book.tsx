@@ -17,10 +17,7 @@ import {
     useRef,
     useState,
 } from "react";
-import Markdown from "react-markdown";
 import { MarkdownTypewriter } from "markdown-typewriter/react";
-import rehypeRaw from "rehype-raw";
-import remarkGfm from "remark-gfm";
 
 /** Rough initial guess for an unmeasured paragraph's height; the virtualizer corrects
  * this against the real rendered height as soon as each item mounts. */
@@ -108,19 +105,14 @@ export function NarrationBook() {
 
 /**
  * Every already-read paragraph is rendered once and never changes again, but without this
- * memo react-markdown rebuilds its whole unified() pipeline and re-parses every one of them
- * from scratch on every NarrationBook re-render (i.e. on every subsequent step) - O(n) work
- * per step that keeps growing the longer a page/scene runs.
+ * memo keeps completed paragraphs from being reparsed on every NarrationBook re-render
+ * (i.e. on every subsequent step) - O(n) work per step that keeps growing with a long scene.
  */
 const PastParagraph = memo(function PastParagraph({ text }: { text: string }) {
     return (
-        <Markdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-            components={markdownComponents}
-        >
+        <MarkdownTypewriter animated={false} allowHtml components={markdownComponents}>
             {text}
-        </Markdown>
+        </MarkdownTypewriter>
     );
 });
 
@@ -223,17 +215,18 @@ const LastParagraph = memo(function LastParagraph({
         <p className="prose dark:prose-invert m-0 max-w-full p-0">
             {staticText && (
                 <span>
-                    <Markdown
-                        remarkPlugins={[remarkGfm]}
-                        rehypePlugins={[rehypeRaw]}
+                    <MarkdownTypewriter
+                        animated={false}
+                        allowHtml
                         components={lastParagraphComponents}
                     >
                         {staticText}
-                    </Markdown>
+                    </MarkdownTypewriter>
                 </span>
             )}
             <span>
                 <MarkdownTypewriter
+                    allowHtml
                     components={markdownComponents}
                     delay={typewriterDelay}
                     motionProps={motionProps}
