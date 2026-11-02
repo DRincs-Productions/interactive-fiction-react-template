@@ -103,11 +103,10 @@ The packages produced by `release.yml` are **not signed**: Android is a debug `.
 
 Never commit keystores, certificates, passwords, or provisioning profiles: use GitHub secrets only. See the `roves-action` inputs in the [Roves documentation](https://roves.pixi-vn.com/docs/action) for the up-to-date list.
 
-## Ink book commands
+## Ink commands and variables
 
-- `# vignette <assetAlias> "<alt text>"` displays an illustration through the existing MarkdownImage renderer. Use a registered asset alias, not a canvas command.
-- `# link <labelId> "<text>" [required]` displays an internal MarkdownLink. `required` blocks continue until a story link is followed. The target must be a registered label or Ink knot; external URLs should use ordinary Markdown.
-- Keep the base `narration` section enabled: these commands chain to `pause` so the player can read before continuing.
-- Put each command on its own narrative step: each sets the current dialogue. Captions are literal text; localize authored variants alongside the story. Ordinary Markdown inside Ink prose remains supported.
-- Register these commands in `src/content/ink/hashtag-commands.ts`. Keep the existing TypeScript sample story until it is deliberately migrated; do not register an Ink knot with the same ID as a TypeScript label.
-- `addBaseHashtagCommands` supports independent `sections.canvas`, `sections.sound`, `sections.narration`, and `sections.assets` toggles, all defaulting to true. Leave sections enabled unless intentionally changing the supported authoring vocabulary.
+Registered in `src/content/ink/hashtag-commands.ts`. In Ink prose, write ordinary Markdown (`![alt](assetAlias)`, `[text](labelId)`) directly.
+
+- `# chapter <translationKey>` calls `setChapter()`: increments the chapter counter and records the name. Pass a translation key, not translated text.
+- `# require link` calls `requireLinkClickToContinue()`: put it in the same step as the Markdown link; continue stays blocked until the link is followed.
+- `chapter_counter` and `chapter_name` are Ink variables served by a `VariableGetter` handler backed by `getChapterCounter()` and `getChapterName()`.

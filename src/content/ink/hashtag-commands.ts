@@ -1,15 +1,16 @@
-import {
-    clearLinkContinueLock,
-    requireLinkClickToContinue,
-} from "@/lib/utils/continue-lock-utility";
-import { narration, RegisteredLabels } from "@drincs/pixi-vn";
+import { getChapterCounter, getChapterName, setChapter } from "@/lib/utils/chapter-utility";
+import { requireLinkClickToContinue } from "@/lib/utils/continue-lock-utility";
 import { assetAliasIds, bundleIds, characterIdsEnum } from "@/pixi-vn.keys.gen";
-import { addBaseHashtagCommands, HashtagCommands } from "@drincs/pixi-vn-ink";
+import { addBaseHashtagCommands, HashtagCommands, VariableGetter } from "@drincs/pixi-vn-ink";
 import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
 import { achievements } from "@drincs/roves-api/achievements";
 import zod from "zod";
 
-addBaseHashtagCommands({ bundleIds, assetAliasIds });
+addBaseHashtagCommands({
+    bundleIds,
+    assetAliasIds,
+    sections: { canvas: false },
+});
 
 HashtagCommands.add(
     async (script, { navigate }) => {
@@ -62,56 +63,47 @@ HashtagCommands.add(
     },
 );
 
-// Escape caption delimiters so captions cannot introduce extra Markdown elements.
-function markdownCaption(value: string) {
-    return value.replace(/[\\[\]_*`]/g, "\\$&");
-}
-
 HashtagCommands.add(
     (script) => {
-        if (!assetAliasIds.some((alias) => alias === script[1])) {
-            throw new Error(`Unknown vignette asset: ${script[1]}`);
-        }
-        narration.dialogue = `![${markdownCaption(script[2])}](${script[1]})`;
-        return "pause";
+        setChapter(script[1]);
+        return true;
     },
     {
-        name: "vignette",
-        description:
-            'Shows an inline book illustration. # vignette <assetAlias> "<alt text>". Use a dedicated step; captions are literal text.',
-        validation: zod.tuple([zod.literal("vignette"), zod.string().min(1), zod.string()]),
+        name: "chapter",
+        description: `Starts a new chapter: increments the chapter counter and records its name. Pass a translation key (namespace "narration"), not translated text.
+
+\`\`\`ink
+# chapter <translationKey>
+\`\`\`
+
+Read it back in Ink with the variables \`chapter_counter\` and \`chapter_name\`.`,
+        validation: zod.tuple([zod.literal("chapter"), zod.string().min(1)]),
     },
 );
 
 HashtagCommands.add(
-    (script) => {
-        if (!RegisteredLabels.has(script[1])) {
-            throw new Error(`Unknown story link target: ${script[1]}`);
-        }
-        if (script[3] === "required") {
-            requireLinkClickToContinue();
-        } else {
-            clearLinkContinueLock();
-        }
-        narration.dialogue = `[${markdownCaption(script[2])}](${script[1]})`;
-        return "pause";
+    () => {
+        requireLinkClickToContinue();
+        return true;
     },
     {
-        name: "link",
-        description:
-            'Shows an internal story link. # link <labelId> "<text>" [required]. Use a dedicated step. Required links block continue until clicked.',
-        validation: zod.union([
-            zod.tuple([
-                zod.literal("link"),
-                zod.string().regex(/^[a-zA-Z_][\w.-]*$/),
-                zod.string(),
-            ]),
-            zod.tuple([
-                zod.literal("link"),
-                zod.string().regex(/^[a-zA-Z_][\w.-]*$/),
-                zod.string(),
-                zod.literal("required"),
-            ]),
-        ]),
+        name: "require link",
+        description: `Blocks continue until the player follows a Markdown story link. Use it in the same step as the link.
+
+\`\`\`ink
+# require link
+[Read the notice](notice_board)
+\`\`\``,
+        validation: zod.tuple([zod.literal("require"), zod.literal("link")]),
     },
 );
+
+// Ink reads of these variables are served by the chapter utility instead of plain storage.
+VariableGetter.add((value, next) => {
+    const logic = value as { type?: string; storageOperationType?: string; key?: unknown };
+    if (logic?.type === "value" && logic.storageOperationType === "get") {
+        if (logic.key === "chapter_counter") return getChapterCounter() as typeof value;
+        if (logic.key === "chapter_name") return getChapterName() as typeof value;
+    }
+    return next(value);
+});
