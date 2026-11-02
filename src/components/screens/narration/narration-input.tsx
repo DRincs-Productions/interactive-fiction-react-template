@@ -1,24 +1,20 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { CHOICE_INPUT_REVEAL_DELAY_MS } from "@/constants";
 import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
-import { useQueryDialogue, useQueryInputValue } from "@/lib/query/narration-query";
+import { useQueryInputValue } from "@/lib/query/narration-query";
 import { GameStatus } from "@/lib/stores/game-status-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { useDebouncedValue } from "@tanstack/react-pacer";
 import { useSelector } from "@tanstack/react-store";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MarkdownTypewriter } from "markdown-typewriter/react";
-import type { ComponentProps } from "react";
 
-const INLINE_MARKDOWN_COMPONENTS = {
-    p: (props: ComponentProps<"span">) => <span {...props} />,
-};
-
-export function InputRequestDialog() {
-    const { data: { lastText: text } = {} } = useQueryDialogue();
+/**
+ * Inline input row for narration steps that ask the player for a value - sits
+ * below the book text instead of interrupting it with a modal.
+ */
+export function NarrationInput() {
     const {
         data: { isRequired, type, currentValue } = { currentValue: undefined, isRequired: false },
     } = useQueryInputValue<string | number>();
@@ -28,8 +24,9 @@ export function InputRequestDialog() {
     const [sustainedReady] = useDebouncedValue(readyToShow, {
         wait: CHOICE_INPUT_REVEAL_DELAY_MS,
     });
-    const open = readyToShow && sustainedReady;
+    const visible = readyToShow && sustainedReady;
     const [tempValue, setTempValue] = useState<string | number>();
+    const { goNext } = useNarrationFunctions();
     const { submitInputValue: submitNarrationInputValue } = useNarrationFunctions();
     const { t } = useTranslation(["ui"]);
 
@@ -45,21 +42,19 @@ export function InputRequestDialog() {
         }
         submitNarrationInputValue(tempValue || currentValue);
         setTempValue(undefined);
-    }, [canConfirm, currentValue, submitNarrationInputValue, tempValue]);
+        goNext();
+    }, [canConfirm, currentValue, submitNarrationInputValue, tempValue, goNext]);
+
+    if (!visible) {
+        return null;
+    }
 
     return (
-        <Dialog open={open}>
-            <DialogContent showCloseButton={false}>
-                {text && (
-                    <MarkdownTypewriter
-                        allowHtml
-                        animated={false}
-                        components={INLINE_MARKDOWN_COMPONENTS}
-                    >
-                        {text}
-                    </MarkdownTypewriter>
-                )}
+        <div className="mx-0 pb-2 sm:mx-10 md:mx-20 lg:mx-20">
+            <div className="flex items-center gap-1.5 rounded-lg border p-[3px]">
                 <Input
+                    autoFocus
+                    className="border-0 shadow-none focus-visible:ring-0"
                     value={tempValue ?? ""}
                     type={type}
                     onKeyDown={(e) => {
@@ -77,12 +72,10 @@ export function InputRequestDialog() {
                         }
                     }}
                 />
-                <DialogFooter>
-                    <Button disabled={!canConfirm} onClick={submitInputValue}>
-                        {t("confirm")}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                <Button size="sm" disabled={!canConfirm} onClick={submitInputValue}>
+                    {t("confirm")}
+                </Button>
+            </div>
+        </div>
     );
 }

@@ -1,15 +1,10 @@
 import App from "@/App";
-import {
-    BGM_CHANNEL_NAME,
-    CANVAS_UI_LAYER_NAME,
-    HTML_CANVAS_LAYER_NAME,
-    HTML_UI_LAYER_NAME,
-    SFX_CHANNEL_NAME,
-} from "@/constants";
+import { BGM_CHANNEL_NAME, SFX_CHANNEL_NAME } from "@/constants";
 import { ChannelSound } from "@/lib/stores/channel-sound-stores";
 import { MasterSound } from "@/lib/stores/master-sound-storage";
+import { PendingLabelAction } from "@/lib/stores/pending-label-action-store";
 import "@/styles.css";
-import { Assets, canvas, Container, drawCanvasErrorHandler, Game, sound } from "@drincs/pixi-vn";
+import { Game, narration, sound, stepHistory } from "@drincs/pixi-vn";
 import { createRoot } from "react-dom/client";
 
 // Canvas setup with PIXI
@@ -18,16 +13,9 @@ if (!body) {
     throw new Error("body element not found");
 }
 
-Game.init(body, {
-    id: HTML_CANVAS_LAYER_NAME,
-    height: 1080,
-    width: 1920,
-    backgroundColor: "#303030",
-    resizeMode: "contain",
-}).then(() => {
-    // Pixi.JS UI Layer
-    canvas.layers.add(CANVAS_UI_LAYER_NAME, new Container());
+stepHistory.goBackMode = "paragraph";
 
+Game.init().then(() => {
     // Sound setup
     sound.channels.add(BGM_CHANNEL_NAME, { background: true });
     sound.channels.add(SFX_CHANNEL_NAME);
@@ -41,11 +29,7 @@ Game.init(body, {
         throw new Error("root element not found");
     }
 
-    const htmlLayout = canvas.htmlLayers.add(HTML_UI_LAYER_NAME, root);
-    if (!htmlLayout) {
-        throw new Error("htmlLayout not found");
-    }
-    const reactRoot = createRoot(htmlLayout);
+    const reactRoot = createRoot(root);
     reactRoot.render(<App />);
 });
 
@@ -54,10 +38,23 @@ Game.onEnd(async ({ navigate }) => {
     navigate({ to: "/" });
 });
 
-Game.addOnError(drawCanvasErrorHandler());
 Game.addOnError((error, { toast, uiTransition }) => {
     toast && uiTransition && toast.error(uiTransition("allert_error_occurred"));
     console.error(`Error occurred`, error);
 });
 
-Game.onLoadingLabel((_stepId, { id }) => Assets.backgroundLoadBundle(id));
+Game.onLabelStarting((labelId, _props, options, defaultStart) => {
+    // Let the very first label of a game (no label active yet, e.g. Game.start) begin
+    // immediately; only defer label starts that happen mid-story (see PendingLabelAction).
+    if (!narration.labels.current) {
+        return defaultStart();
+    }
+    PendingLabelAction.setStart(labelId, options, defaultStart);
+});
+
+Game.onLabelClosing((labelId, _props, defaultClose) => {
+    // A called label always closes back into a parent (see NarrationManager.closeLabel),
+    // so defer every close - the goNext loop resumes it on the player's next action
+    // (see PendingLabelAction).
+    PendingLabelAction.setClose(labelId, defaultClose);
+});

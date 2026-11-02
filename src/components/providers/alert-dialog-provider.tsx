@@ -1,6 +1,3 @@
-import { AlertDialogState } from "@/lib/stores/alert-dialog-store";
-import { createContext, type ReactNode, useCallback, useContext, useState } from "react";
-import { useTranslation } from "react-i18next";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -10,6 +7,9 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { AlertDialogState } from "@/lib/stores/alert-dialog-store";
+import { createContext, type ReactNode, useCallback, useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 /** Must match the CSS transition duration used in AlertDialog. */
 const DIALOG_CLOSE_ANIMATION_DURATION_MS = 100;
@@ -27,6 +27,8 @@ export interface AlertDialogOptions {
     onConfirm?: () => boolean | Promise<boolean>;
     onCancel?: () => void;
     disabledConfirm?: boolean;
+    hideCancel?: boolean;
+    confirmLabel?: ReactNode;
 }
 
 interface AlertDialogItem {
@@ -82,7 +84,9 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
                         )}
                         {dialog.options.content && <div>{dialog.options.content}</div>}
                         <AlertDialogFooter>
-                            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+                            {!dialog.options.hideCancel && (
+                                <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+                            )}
                             <AlertDialogAction
                                 disabled={dialog.options.disabledConfirm || dialog.loading}
                                 onClick={async () => {
@@ -118,7 +122,7 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
                                     }
                                 }}
                             >
-                                {t("confirm")}
+                                {dialog.options.confirmLabel ?? t("confirm")}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

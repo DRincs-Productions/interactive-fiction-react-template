@@ -4,6 +4,31 @@ import { canvas, Game } from "@drincs/pixi-vn";
 
 const SAVE_FILE_EXTENSION = "json";
 
+/** Number of trailing characters of the last dialogue line shown as a save's excerpt. */
+const EXCERPT_LENGTH = 80;
+
+/**
+ * The (untranslated) text of the most recent dialogue in a save's history, if any -
+ * resolve it with `t()` (using the "narration" namespace) before display.
+ */
+export function getLastDialogueRawText(
+    state: GameSaveData["saveData"],
+): string | string[] | undefined {
+    const steps = state.historyData.stepsHistory;
+    for (let index = steps.length - 1; index >= 0; index--) {
+        const text = steps[index].dialogue?.text;
+        if (text) {
+            return text;
+        }
+    }
+    return undefined;
+}
+
+/** Truncates `text` to its last {@link EXCERPT_LENGTH} characters, prefixed with an ellipsis when cut. */
+export function getExcerpt(text: string): string {
+    return text.length > EXCERPT_LENGTH ? `…${text.slice(-EXCERPT_LENGTH)}` : text;
+}
+
 /** Snapshots the current game state into a {@link GameSaveData}, ready to pass to {@link save}. */
 async function create(options?: { image?: string; name?: string }): Promise<GameSaveData> {
     const { image, name = "" } = options || {};

@@ -1,4 +1,5 @@
 import { SaveSlot } from "@/components/menus/save-menu/save-slots";
+import { ItemGroup } from "@/components/ui/item";
 import {
     Pagination,
     PaginationContent,
@@ -45,6 +46,7 @@ function getPageNumbers(current: number, total: number): PageEntry[] {
     return pages;
 }
 
+/** The save/load menu: a quick-saves view and a paginated view of the manual save slots. */
 export function GameSaveMenu({ quickSaves }: { quickSaves: boolean }) {
     const page = useSelector(SaveMenuPagination.store, (state) => state.page);
 
@@ -53,25 +55,25 @@ export function GameSaveMenu({ quickSaves }: { quickSaves: boolean }) {
 
     if (quickSaves) {
         return (
-            <ScrollArea className="min-h-0 flex-1">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+            <ScrollArea className="max-h-[60vh] min-h-0">
+                <ItemGroup className="gap-2 p-1">
                     {QUICK_SAVE_IDS.map((id) => (
-                        <SaveSlot key={`SaveFile${id}`} saveId={id} />
+                        <SaveSlot key={`SaveFile${id}`} saveId={id} isQuickSave />
                     ))}
-                </div>
+                </ItemGroup>
             </ScrollArea>
         );
     }
 
     return (
         <div className="flex flex-1 min-h-0 flex-col">
-            <ScrollArea className="min-h-0 flex-1">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+            <ScrollArea className="max-h-[60vh] min-h-0 flex-1">
+                <ItemGroup className="gap-2 p-1">
                     {Array.from({ length: SAVES_PER_PAGE }).map((_, index) => {
                         const id = page * SAVES_PER_PAGE + index;
                         return <SaveSlot key={`SaveFile${id}`} saveId={id} />;
                     })}
-                </div>
+                </ItemGroup>
             </ScrollArea>
             <Pagination className="shrink-0 border-t py-1.5">
                 <PaginationContent className="w-full justify-between px-2 sm:w-auto sm:justify-center sm:px-0">
