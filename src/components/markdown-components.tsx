@@ -4,12 +4,10 @@ import { RegisteredLabels, type LabelIdType } from "@drincs/pixi-vn";
 import { motion } from "motion/react";
 import type React from "react";
 import { useCallback } from "react";
-import type { Components } from "react-markdown";
 
 /**
- * Same shape as react-markdown-typewriter's own per-character variants. Neither
- * MarkdownImage nor MarkdownLink's characters set their own `initial`/`animate`, so
- * inside `MarkdownTypewriterHooks` they inherit the ancestor's "hidden"/"visible" state
+ * MarkdownImage and MarkdownLink don't set their own `initial`/`animate` variants, so
+ * inside `MarkdownTypewriter` they inherit the ancestor's "hidden"/"visible" state
  * (and its stagger) through motion's variant propagation and pop in on the same beat as
  * the surrounding typed text; outside a typewriter ancestor (past paragraphs, already-
  * typed text) there's no context driving them, so they just render visible immediately.
@@ -23,9 +21,9 @@ const typewriterVariants = {
  * Renders a markdown image, e.g. `![The keep](background_main_menu)`.
  * `Image` (see components/ui/image.tsx) already resolves a pixi-vn asset alias to its real
  * url via `useImageSrc`/`getPixiJSAsset` - a plain url is passed through unchanged - so this
- * is a thin adapter from react-markdown's `img` props to that existing component.
+ * adapts markdown-typewriter's `img` props to that existing component.
  */
-export const MarkdownImage: Components["img"] = ({ src, alt }) => {
+export const MarkdownImage = ({ src, alt }: { src?: string; alt?: string }) => {
     if (!src) {
         return null;
     }
@@ -59,7 +57,7 @@ function splitForTypewriter(node: React.ReactNode, keyPrefix: string): React.Rea
  * and automatically clears any lock set by `requireLinkClickToContinue`. Any other
  * href is rendered as a regular external link.
  */
-export const MarkdownLink: Components["a"] = ({ href, children }) => {
+export const MarkdownLink = ({ href, children }: { href?: string; children?: React.ReactNode }) => {
     const { jump } = useNarrationFunctions();
     const isLabelLink = typeof href === "string" && RegisteredLabels.has(href);
     const animatedChildren = splitForTypewriter(children, "link-char");
@@ -101,7 +99,7 @@ export const MarkdownLink: Components["a"] = ({ href, children }) => {
     );
 };
 
-export const markdownComponents: Components = {
+export const markdownComponents = {
     img: MarkdownImage,
     a: MarkdownLink,
 };
