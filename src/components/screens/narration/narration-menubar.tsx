@@ -1,3 +1,4 @@
+import { ThemeModeToggle } from "@/components/theme-mode-toggle";
 import {
     Menubar,
     MenubarContent,
@@ -41,6 +42,7 @@ export function NarrationMenubar() {
                         <MenubarItem onClick={() => setSettings(true)}>{t("settings")}</MenubarItem>
                     </MenubarContent>
                 </MenubarMenu>
+                <ThemeModeToggle className="ml-auto" />
             </Menubar>
         </div>
     );
