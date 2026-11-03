@@ -70,7 +70,7 @@ newLabel("start_hall", [
     () => {
         sound.stop("sfx_rain_ambience");
         sound.play("bgm_medieval_hall", { channel: BGM_CHANNEL_NAME, loop: true });
-        narration.dialogue = `The Great Hall smells of woodsmoke and old wax. Above the hearth hangs a painted view of the keep at midsummer: ![The keep in summer](keep_hall)`;
+        narration.dialogue = `![The keep in summer](keep_hall "45% right")The Great Hall smells of woodsmoke and old wax. Above the hearth hangs a painted view of the keep at midsummer.`;
     },
     () => {
         narration.dialogue = { character: mc, text: `"I'm here about the work," you say.` };
