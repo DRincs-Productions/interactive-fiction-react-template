@@ -2,8 +2,19 @@ import { Image } from "@/components/ui/image";
 import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { RegisteredLabels, type LabelIdType } from "@drincs/pixi-vn";
 import { motion } from "motion/react";
+import { VIGNETTE_MIN_WRAP_TEXT_WIDTH_PX } from "@/constants";
+import { cn } from "@/lib/utils";
+import { getVignetteWidthPx, parseVignetteLayout } from "@/lib/utils/vignette-utility";
 import type React from "react";
-import { useCallback } from "react";
+import {
+    type CSSProperties,
+    type RefObject,
+    useCallback,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 
 /**
  * MarkdownImage and MarkdownLink don't set their own `initial`/`animate` variants, so
@@ -17,19 +28,101 @@ const typewriterVariants = {
     visible: { opacity: 1, transition: { opacity: { duration: 0 } } },
 };
 
+/** Nearest ancestor that lays out as a block (the paragraph's text column), skipping inline wrappers. */
+function findBlockContainer(element: HTMLElement): HTMLElement | null {
+    let el = element.parentElement;
+    while (el) {
+        const display = window.getComputedStyle(el).display;
+        if (display !== "inline" && display !== "contents") return el;
+        el = el.parentElement;
+    }
+    return null;
+}
+
+/** Tracks the content width (px) of the block that contains `ref`, or `undefined` until measured. */
+function useContainerWidth(ref: RefObject<HTMLElement | null>, enabled: boolean) {
+    const [width, setWidth] = useState<number>();
+    useLayoutEffect(() => {
+        if (!enabled || !ref.current) return;
+        const container = findBlockContainer(ref.current);
+        if (!container) return;
+        const update = () => {
+            const style = window.getComputedStyle(container);
+            setWidth(
+                container.clientWidth -
+                    Number.parseFloat(style.paddingLeft) -
+                    Number.parseFloat(style.paddingRight),
+            );
+        };
+        update();
+        const observer = new ResizeObserver(update);
+        observer.observe(container);
+        return () => observer.disconnect();
+    }, [ref, enabled]);
+    return width;
+}
+
 /**
- * Renders a markdown image, e.g. `![The keep](background_main_menu)`.
+ * Renders a markdown image (vignette), e.g. `![The keep](background_main_menu)`.
  * `Image` (see components/ui/image.tsx) already resolves a pixi-vn asset alias to its real
  * url via `useImageSrc`/`getPixiJSAsset` - a plain url is passed through unchanged - so this
  * adapts markdown-typewriter's `img` props to that existing component.
+ *
+ * The optional markdown title sets size and alignment (see `parseVignetteLayout`), e.g.
+ * `![The keep](keep_hall "40% right")`. A narrower-than-full-width vignette aligned left or
+ * right floats so the text wraps around it, but only while the free space beside it is at
+ * least `VIGNETTE_MIN_WRAP_TEXT_WIDTH_PX`; otherwise it sits on its own row, still aligned.
  */
-export const MarkdownImage = ({ src, alt }: { src?: string; alt?: string }) => {
+export const MarkdownImage = ({
+    src,
+    alt,
+    title,
+}: {
+    src?: string;
+    alt?: string;
+    title?: string;
+}) => {
+    const ref = useRef<HTMLSpanElement>(null);
+    const layout = useMemo(() => parseVignetteLayout(title), [title]);
+    const { width, align } = layout;
+    const canWrap = width !== undefined && align !== "center";
+    const containerWidth = useContainerWidth(ref, canWrap);
+
     if (!src) {
         return null;
     }
+
+    const wrap =
+        canWrap &&
+        containerWidth !== undefined &&
+        containerWidth - getVignetteWidthPx(width, containerWidth) >=
+            VIGNETTE_MIN_WRAP_TEXT_WIDTH_PX;
+
+    const style: CSSProperties = width
+        ? { width: `${width.value}${width.unit}`, maxWidth: "100%" }
+        : {};
+
     return (
-        <motion.span variants={typewriterVariants} className="block">
-            <Image src={src} alt={alt ?? ""} layout="fullWidth" className="rounded-md" />
+        <motion.span
+            ref={ref}
+            variants={typewriterVariants}
+            style={style}
+            data-vignette-align={align}
+            data-vignette-wrap={wrap || undefined}
+            className={cn(
+                "block",
+                width && !wrap && align === "center" && "mx-auto",
+                width && !wrap && align === "right" && "ml-auto",
+                wrap && align === "left" && "float-left mt-1 mr-4 mb-2",
+                wrap && align === "right" && "float-right mt-1 mb-2 ml-4",
+            )}
+        >
+            <Image
+                src={src}
+                alt={alt ?? ""}
+                layout="fullWidth"
+                className={cn("rounded-md", wrap && "my-0!")}
+            />
         </motion.span>
     );
 };

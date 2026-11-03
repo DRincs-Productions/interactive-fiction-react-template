@@ -16,3 +16,10 @@ export const NARRATION_DATA_USE_QUERY_KEY = "NARRATION_DATA_USE_QUERY_KEY";
 
 /** Text-shadow that outlines text with black so it remains legible over any image or canvas background. */
 export const overlayTextShadowClass = "[text-shadow:0_0_3px_black,0_0_6px_black]";
+
+/**
+ * Minimum free horizontal space (px) beside a narrower-than-100% markdown vignette for the
+ * text to wrap around it. If the space left beside the image is smaller, the image is shown
+ * on its own row instead, keeping the requested alignment. See `MarkdownImage`.
+ */
+export const VIGNETTE_MIN_WRAP_TEXT_WIDTH_PX = 160;
