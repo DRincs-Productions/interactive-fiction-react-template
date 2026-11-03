@@ -17,7 +17,7 @@ Older hands in the hall go quiet at the mention of the tower, exchanging a look 
 === second_part_end ===
 # stop sound bgm_medieval_hall
 # play sound sfx_rain_ambience channel bgm loop true
-The orchard is a black tangle in the dark, and beyond it, the watchtower waits - one narrow window burning with a light no torch ever made: ![The watchtower at night](watchtower)
+![The watchtower at night](watchtower "45% left")The orchard is a black tangle in the dark, and beyond it, the watchtower waits - one narrow window burning with a light no torch ever made.
 <>The wind through the dead branches sounds almost like breathing. Your own torch gutters once, twice, and steadies only when you cup a hand around the flame and keep walking.
 # play sound sfx_torch_crackle
 <>Whatever is waiting behind that light, it isn't going to come down and meet you halfway. You push open the tower's low door and start up the stairs.

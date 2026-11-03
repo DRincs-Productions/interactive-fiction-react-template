@@ -25,7 +25,7 @@ You think, not for the first time, of the empty larder back home, and the letter
 === start_hall ===
 # stop sound sfx_rain_ambience
 # play sound bgm_medieval_hall channel bgm loop true
-The Great Hall smells of woodsmoke and old wax. Above the hearth hangs a painted view of the keep at midsummer: ![The keep in summer](keep_hall)
+![The keep in summer](keep_hall "45% right")The Great Hall smells of woodsmoke and old wax. Above the hearth hangs a painted view of the keep at midsummer.
 mc: "I'm here about the work," you say.
 [steward] sets down his quill.
 steward: "Then you'll want to prove you're worth feeding, first."
