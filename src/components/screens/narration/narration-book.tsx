@@ -85,7 +85,7 @@ export function NarrationBook() {
                                     key={virtualItem.key}
                                     data-index={virtualItem.index}
                                     ref={virtualizer.measureElement}
-                                    className="absolute top-0 left-0 w-full pb-4"
+                                    className="absolute top-0 left-0 flow-root w-full pb-4"
                                     style={{ transform: `translateY(${virtualItem.start}px)` }}
                                 >
                                     <PastParagraph text={pastParagraphs[virtualItem.index].text} />
@@ -93,7 +93,8 @@ export function NarrationBook() {
                             ))}
                         </div>
                     )}
-                    <div className="pb-4">
+                    {/* flow-root keeps floated vignettes (see MarkdownImage) inside their paragraph. */}
+                    <div className="flow-root pb-4">
                         <LastParagraph text={lastParagraph.text} containerRef={bookRef} />
                     </div>
                     <ChoiceMenu />

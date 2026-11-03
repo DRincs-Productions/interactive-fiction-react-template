@@ -1,6 +1,4 @@
-import { useTheme } from "@/components/providers/theme-provider";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import {
     Select,
     SelectContent,
@@ -9,7 +7,6 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguageSettings } from "@/lib/hooks/language-settings-hooks";
 import { downloadResourceToTranslate } from "@/lib/i18n";
@@ -22,14 +19,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
 import type * as app from "@tauri-apps/api";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import {
-    DownloadIcon,
-    FullscreenIcon,
-    Minimize2Icon,
-    MonitorIcon,
-    MoonIcon,
-    SunIcon,
-} from "lucide-react";
+import { DownloadIcon, FullscreenIcon, Minimize2Icon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -43,7 +33,6 @@ export function SystemControls() {
     return (
         <div className="flex flex-col gap-4">
             <FullScreenSettings />
-            <ModeToggle />
             <LanguageSettings />
             <TextSizeSettings />
         </div>
@@ -76,62 +65,6 @@ export function TextSizeSettings() {
                 <span>50%</span>
                 <span>200%</span>
             </div>
-        </div>
-    );
-}
-
-export function ModeToggle() {
-    const { setTheme, theme } = useTheme();
-    const { t } = useTranslation(["ui"]);
-
-    return (
-        <div className="flex items-center justify-between gap-4">
-            <div className="flex-1">
-                <p className="text-sm font-medium leading-none">{t("theme_mode")}</p>
-            </div>
-            <ButtonGroup className="shrink-0">
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger render={<span />}>
-                            <Toggle
-                                size="sm"
-                                pressed={theme === "light"}
-                                onPressedChange={() => setTheme("light")}
-                                aria-label="Light Mode"
-                            >
-                                <SunIcon />
-                            </Toggle>
-                        </TooltipTrigger>
-                        <TooltipContent>Light Mode</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger render={<span />}>
-                            <Toggle
-                                size="sm"
-                                pressed={theme === "system"}
-                                onPressedChange={() => setTheme("system")}
-                                aria-label="System Mode"
-                            >
-                                <MonitorIcon />
-                            </Toggle>
-                        </TooltipTrigger>
-                        <TooltipContent>System Mode</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger render={<span />}>
-                            <Toggle
-                                size="sm"
-                                pressed={theme === "dark"}
-                                onPressedChange={() => setTheme("dark")}
-                                aria-label="Dark Mode"
-                            >
-                                <MoonIcon />
-                            </Toggle>
-                        </TooltipTrigger>
-                        <TooltipContent>Dark Mode</TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </ButtonGroup>
         </div>
     );
 }

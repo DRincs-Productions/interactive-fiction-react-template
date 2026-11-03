@@ -46,7 +46,7 @@ newLabel("second_part_end", [
     () => {
         sound.stop("bgm_medieval_hall");
         sound.play("sfx_rain_ambience", { channel: BGM_CHANNEL_NAME, loop: true });
-        narration.dialogue = `The orchard is a black tangle in the dark, and beyond it, the watchtower waits - one narrow window burning with a light no torch ever made: ![The watchtower at night](watchtower)`;
+        narration.dialogue = `![The watchtower at night](watchtower "45% left")The orchard is a black tangle in the dark, and beyond it, the watchtower waits - one narrow window burning with a light no torch ever made.`;
     },
     () => {
         narration.dialogGlue = true;

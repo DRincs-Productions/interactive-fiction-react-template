@@ -8,6 +8,7 @@ import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { useDebouncedValue } from "@tanstack/react-pacer";
 import { useSelector } from "@tanstack/react-store";
 import { CornerDownLeft } from "lucide-react";
+import { useEffect } from "react";
 
 const choiceButtonClass =
     "w-full justify-center sm:w-auto sm:min-w-56 hover:scale-105 focus-visible:scale-105 transition-transform duration-150 ease-out";
@@ -22,6 +23,20 @@ export function ChoiceMenu() {
     });
     const debouncedMenu = !isTyping && sustainedNotTyping && !loading ? menu : [];
     const { menuRef } = useChoiceMenuHotkeys(debouncedMenu.length);
+    const hasChoices = debouncedMenu.length > 0;
+
+    // When the choices appear, scroll the book all the way down so every option is visible.
+    useEffect(() => {
+        if (!hasChoices) return;
+        const viewport = menuRef.current?.closest<HTMLElement>(
+            '[data-slot="scroll-area-viewport"]',
+        );
+        if (!viewport) return;
+        const frame = requestAnimationFrame(() =>
+            viewport.scrollTo({ top: viewport.scrollHeight, behavior: "smooth" }),
+        );
+        return () => cancelAnimationFrame(frame);
+    }, [hasChoices, menuRef]);
 
     return (
         <div ref={menuRef} className="flex w-full flex-col items-center gap-2 py-4" role="menu">
