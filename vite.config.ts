@@ -64,7 +64,7 @@ export default defineConfig(({ mode }) => ({
                 theme_color: "#ffffff",
                 start_url: "/",
                 display: "fullscreen",
-                orientation: "landscape",
+                orientation: "portrait",
                 icons: [
                     {
                         src: "pwa-192x192.png",
