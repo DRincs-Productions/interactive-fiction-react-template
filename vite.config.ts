@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => ({
             includeAssets: ["favicon.ico", "apple-touch-icon-180x180.png"],
             manifest: {
                 name: "my-app-project-name",
-                short_name: "Visual Novel Example",
+                short_name: "Interactive Fiction Example",
                 description: "my-app-description",
                 theme_color: "#ffffff",
                 start_url: "/",
