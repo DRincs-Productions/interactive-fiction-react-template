@@ -11,6 +11,8 @@ Consult the official Pixi’VN documentation when implementing or changing engin
 
 ## Project structure
 
+- `src/pixi-vn.d.ts`: game-specific Pixi?VN type extensions.
+
 Application code lives in `src/`.
 
 - `src/assets/`: game assets such as images, audio, and video. Follow the asset manifest and loading system already in place; when adding or moving assets, update the required manifests or configuration.
@@ -171,3 +173,4 @@ Registered in `src/content/ink/hashtag-commands.ts`. In Ink prose, write ordinar
 - `# chapter <translationKey>` calls `setChapter()`: increments the chapter counter and records the name. Pass a translation key, not translated text.
 - `# require link` calls `requireLinkClickToContinue()`: put it in the same step as the Markdown link; continue stays blocked until the link is followed.
 - `chapter_counter` and `chapter_name` are Ink variables served by a `VariableGetter` handler backed by `getChapterCounter()` and `getChapterName()`.
+
