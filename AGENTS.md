@@ -54,6 +54,7 @@ The `.vscode/` directory contains formatting settings, recommended extensions, t
 - The narration screen is a **React book**, not a Pixi’VN canvas scene. Render prose and inline illustrations with the existing React Markdown components. Use Pixi’VN’s canvas only if a game intentionally adds a separate canvas-based scene; do not use it to lay out the standard book UI.
 - For images embedded in narration, use Markdown image syntax and the existing `MarkdownImage` renderer. It supports registered Pixi’VN asset aliases and ordinary image URLs. For other custom image UI, prefer existing React components; if PixiJS is used directly, add `pixi.js` as a direct dependency before importing it.
 - If `pixi.js` is used directly and is not yet a direct dependency of the project, add it to `package.json` first, before writing code that imports it.
+- For UI design, polish, and motion, use the **`pixi-vn-ui`** skill (how UI layers sit on top of the Pixi’VN canvas) together with the **Emil Kowalski** skills (`emil-design-eng` and its animation skills) and **`impeccable`** (layout, typography, color, UX review, accessibility) when they are available.
 
 ## Interactive fiction conventions
 
@@ -84,6 +85,8 @@ Skills are reference tools, not required repository dependencies; their availabi
 ## Distribution
 
 The game is intended to be distributed through **Roves**. See the [Roves documentation](https://roves.pixi-vn.com/) for up-to-date instructions on preparing and publishing the project.
+
+To build a distribution locally, or simply to test a packaged build, use the `roves` CLI (`@drincs/roves-cli`) if it is installed (check with `roves --help`): build the web game first with the build script in `package.json`, then package the output with `roves`. Refer to the `roves` skill for the commands and options (desktop, Steam, Android, iOS, icons); to play-test or debug a packaged build, use the `roves-playtest` and `roves-diagnostics` skills.
 
 Releases are built by `.github/workflows/release.yml` (desktop, desktop + Steam, and mobile). To generate a release, create and push a tag matching `v*` (for example `git tag v1.0.0 && git push origin v1.0.0`). The workflow builds the game and attaches the bundles to the GitHub release with that tag.
 
