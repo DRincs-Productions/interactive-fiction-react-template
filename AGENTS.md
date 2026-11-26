@@ -61,6 +61,7 @@ The `.vscode/` directory contains formatting settings, recommended extensions, t
 - The narration screen is a **React book**, not a Pixi’VN canvas scene. Render prose and inline illustrations with the existing React Markdown components. Use Pixi’VN’s canvas only if a game intentionally adds a separate canvas-based scene; do not use it to lay out the standard book UI.
 - For images embedded in narration, use Markdown image syntax and the existing `MarkdownImage` renderer. It supports registered Pixi’VN asset aliases and ordinary image URLs. For other custom image UI, prefer existing React components; if PixiJS is used directly, add `pixi.js` as a direct dependency before importing it.
 - If `pixi.js` is used directly and is not yet a direct dependency of the project, add it to `package.json` first, before writing code that imports it.
+- For UI design, polish, and motion, use the **`pixi-vn-ui`** skill (how UI layers sit on top of the Pixi’VN canvas) together with the **Emil Kowalski** skills (`emil-design-eng` and its animation skills) and **`impeccable`** (layout, typography, color, UX review, accessibility) when they are available.
 
 ## Interactive fiction conventions
 
